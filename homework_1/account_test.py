@@ -3,7 +3,7 @@ import unittest
 from decimal import Decimal
 from io import StringIO
 
-from homework_1.lec3_homework import Account
+from homework_1.account import Account
 
 
 class AccountTest(unittest.TestCase):
