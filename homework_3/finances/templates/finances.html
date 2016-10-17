@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/table_style.css' %}">
+</head>
+
+<body>
+    <table>
+        <caption><h2>Currency Table</h2></caption>
+
+            <tr>
+                {% for obj in object_list %}
+                    <th>{{ obj.currency }}</th>
+                {% endfor %}
+            </tr>
+
+            <tr>
+                {% for obj in object_list %}
+                    <td><b>{{ obj.value }}</b></td>
+                {% endfor %}
+            </tr>
+
+    </table>
+    <a href="/">Return to main</a>
+</body>
+</html>
