@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from .forms import ChargeForm
+from .generator import random_transactions
 
 
 def main_page(request):
@@ -26,3 +27,19 @@ def finance_page(request):
         "form": form
     }
     return render(request, "finances.html", context)
+
+
+def generator_page(request):
+    deposit = []
+    withdraw = []
+    for (date, value) in random_transactions():
+        if value < 0:
+            withdraw.append((date, value))
+        else:
+            deposit.append((date, value))
+    context = {
+        "title": "Generator",
+        "deposit": deposit,
+        "withdraw": withdraw
+    }
+    return render(request, "generator.html", context)

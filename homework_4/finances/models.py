@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from django.db import models
 from django.core.urlresolvers import reverse
+from django.db import models
 
 
 class Charge(models.Model):
