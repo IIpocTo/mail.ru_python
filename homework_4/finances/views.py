@@ -7,13 +7,6 @@ from .forms import ChargeForm
 from .generator import random_transactions
 
 
-def main_page(request):
-    context = {
-        "title": "Main Page"
-    }
-    return render(request, "main.html", context)
-
-
 class MainPageView(generic.TemplateView):
     template_name = 'main.html'
 
