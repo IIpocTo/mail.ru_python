@@ -29,11 +29,13 @@ class FinanceView(generic.FormView):
         if form.is_valid():
             instance = form.save(commit=False)
             instance.save()
-            success_message = "Successfully created new Charge(" \
-                              "value: " + str(request.POST.get('value')) + \
-                              ", date: " + request.POST.get('date') + ")"
-            
+            success_message = "Form successfully validated!"
+            info_message = "You created new Charge(" \
+                           "value: " + str(request.POST.get('value')) + \
+                           ", date: " + request.POST.get('date') + ")"
+
             messages.success(request, success_message)
+            messages.info(request, info_message)
             return HttpResponseRedirect(instance.get_absolute_url())
 
         return render(request, self.template_name, {
