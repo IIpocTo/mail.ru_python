@@ -1,9 +1,9 @@
 from django.conf.urls import url
 
-from .views import main_page, finance_page, generator_page
+from .views import MainPageView, GeneratorView, FinanceView
 
 urlpatterns = [
-    url(r'^$', main_page, name='main'),
-    url(r'^charges/$', finance_page, name='finances'),
-    url(r'^generator/$', generator_page, name='generator')
+    url(r'^$', MainPageView.as_view(), name='main'),
+    url(r'^charges/$', FinanceView.as_view(), name='finances'),
+    url(r'^generator/$', GeneratorView.as_view(), name='generator')
 ]
