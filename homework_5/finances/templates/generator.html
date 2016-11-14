@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+{% load bootstrap3 %}
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>{{ title }}</title>
-    {% load static %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
     <link rel="stylesheet" type="text/css" href="{% static 'styles/table_style.css' %}">
 </head>
 <body>
