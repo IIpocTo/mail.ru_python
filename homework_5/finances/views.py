@@ -38,14 +38,25 @@ class MainPageView(generic.TemplateView):
         })
 
 
-class FinanceView(generic.FormView):
-    template_name = "finances.html"
-    form_class = ChargeForm
+class ChargeView(generic.FormView):
+    template_name = "charge.html"
 
     def get(self, request, number=None, *args, **kwargs):
         get_object_or_404(Account, number=number)
         return render(request, self.template_name, {
-            "title": "Finances",
+            "title": "Add charge"
+        })
+
+
+class AddChargeView(generic.FormView):
+    template_name = "add_charge.html"
+    form_class = ChargeForm
+    title_name = "Your charges"
+
+    def get(self, request, number=None, *args, **kwargs):
+        get_object_or_404(Account, number=number)
+        return render(request, self.template_name, {
+            "title": self.title_name,
             "form": self.form_class,
         })
 
@@ -65,7 +76,7 @@ class FinanceView(generic.FormView):
             return HttpResponseRedirect(instance.get_absolute_url())
 
         return render(request, self.template_name, {
-            "title": "Finances",
+            "title": self.title_name,
             "form": form
         })
 

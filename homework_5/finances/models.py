@@ -22,7 +22,7 @@ class Account(models.Model):
 
     @staticmethod
     def get_absolute_url():
-        return reverse("charges:main")
+        return reverse("finances:main")
 
 
 class Charge(models.Model):
@@ -34,4 +34,4 @@ class Charge(models.Model):
         return "( " + str(self.date) + " )" + " " + str(self.value) + " -> " + str(self.account)
 
     def get_absolute_url(self):
-        return reverse("charges:finances", kwargs={"number": self.account})
+        return reverse("finances:charge", kwargs={"number": self.account})
