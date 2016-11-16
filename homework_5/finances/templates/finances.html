@@ -19,6 +19,7 @@
     {% endif %}
 
     <form method="post">
+        <legend>Add new Charge</legend>
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit" value="Add new Charge"/>

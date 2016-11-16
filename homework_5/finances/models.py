@@ -1,11 +1,21 @@
 from datetime import datetime
 
 from django.core.urlresolvers import reverse
+from django.core.validators import RegexValidator
 from django.db import models
 
 
 class Account(models.Model):
-    number = models.PositiveIntegerField(primary_key=True)
+    number = models.CharField(primary_key=True, max_length=12, verbose_name="Account number", validators=[
+        RegexValidator(
+            r'^\d$',
+            message="Account number must contains only digits"
+        ),
+        RegexValidator(
+            r'^[1-9]{1}\d{11}$',
+            message="Account number must have precisely 12 digits and can not start with 0"
+        )
+    ])
 
     def __str__(self):
         return str(self.number)
