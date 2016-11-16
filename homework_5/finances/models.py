@@ -31,8 +31,7 @@ class Charge(models.Model):
     account = models.ForeignKey(Account)
 
     def __str__(self):
-        return str(self.date) + " " + str(self.value)
+        return "( " + str(self.date) + " )" + " " + str(self.value) + " -> " + str(self.account)
 
-    @staticmethod
-    def get_absolute_url():
-        return reverse("charges:finances")
+    def get_absolute_url(self):
+        return reverse("charges:finances", kwargs={"number": self.account})

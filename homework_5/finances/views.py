@@ -40,19 +40,20 @@ class MainPageView(generic.TemplateView):
 
 class FinanceView(generic.FormView):
     template_name = "finances.html"
+    form_class = ChargeForm
 
     def get(self, request, number=None, *args, **kwargs):
-        instance = get_object_or_404(Account, number=number)
+        get_object_or_404(Account, number=number)
         return render(request, self.template_name, {
             "title": "Finances",
-            "form": ChargeForm,
-            "account_number": instance.number
+            "form": self.form_class,
         })
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, number=None, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
+            instance.account_id = number
             instance.save()
             success_message = "Form successfully validated!"
             info_message = "You created new Charge(" \
