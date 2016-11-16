@@ -8,7 +8,7 @@ from django.db import models
 class Account(models.Model):
     number = models.CharField(primary_key=True, max_length=12, verbose_name="Account number", validators=[
         RegexValidator(
-            r'^\d$',
+            r'^\d+',
             message="Account number must contains only digits"
         ),
         RegexValidator(

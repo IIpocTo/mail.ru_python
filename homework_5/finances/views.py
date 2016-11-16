@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import generic
 
+from .models import Account
 from .forms import ChargeForm, AccountForm
 from .generator import random_transactions
 
@@ -39,12 +40,13 @@ class MainPageView(generic.TemplateView):
 
 class FinanceView(generic.FormView):
     template_name = "finances.html"
-    form_class = ChargeForm
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, number=None, *args, **kwargs):
+        instance = get_object_or_404(Account, number=number)
         return render(request, self.template_name, {
             "title": "Finances",
-            "form": self.form_class
+            "form": ChargeForm,
+            "account_number": instance.number
         })
 
     def post(self, request, *args, **kwargs):
