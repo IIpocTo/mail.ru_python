@@ -1,42 +1,23 @@
-{% load bootstrap3 %}
-{% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ title }}</title>
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    <link rel="stylesheet" type="text/css" href="{% static 'styles/table_style.css' %}">
-</head>
-<body>
-
+{% extends "template.html" %}
+{% block header %}
     <h1>Charge Generator</h1>
-
     <a href='{% url "finances:main" %}'>Return to the main page.</a>
-
+{% endblock %}
+{% block content %}
     <div>
-
         <table class="left"><caption><h2>Your deposit operations</h2></caption>
-
             {% for date, value in deposit %}
             <tr>
                 <td>{{ date }} -> {{ value }}</td>
             </tr>
             {% endfor %}
-
         </table>
-
         <table class="right"><caption><h2>Your withdraw operations</h2></caption>
-
             {% for date, value in withdraw %}
             <tr>
                 <td>{{ date }} -> {{ value }}</td>
             </tr>
             {% endfor %}
-
         </table>
-
     </div>
-
-</body>
-</html>
+{% endblock %}
