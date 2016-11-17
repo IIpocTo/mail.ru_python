@@ -136,3 +136,26 @@ class AddChargeView(generic.FormView):
             "form": form,
             "account_number": number
         })
+
+
+class AccountStatisticsView(generic.FormView):
+    template_name = "statistics.html"
+
+    def get(self, request, number=None, *args, **kwargs):
+        account = get_object_or_404(Account, number=number)
+        a = map(lambda x: (x.get('date').year, x), Charge.objects.filter(account=account).order_by('date').values())
+        stats = list(a)
+        result = {}
+        for a,b in stats:
+            if result.get(a) is not None:
+                if b.get('date').month in result[a]:
+                    result[a][b.get('date').month] += b.get('value')
+                else:
+                    result[a][b.get('date').month] = b.get('value')
+            else:
+                result[a] = {b.get('date').month: b.get('value')}
+        return render(request, self.template_name, {
+            "title": "Account Statistics",
+            "stats": result,
+            "account_number": number
+        })
