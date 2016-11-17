@@ -14,12 +14,16 @@ class AccountForm(forms.ModelForm):
         ]
 
 
-class AccountLookForForm(forms.ModelForm):
+class ChargeGoToForm(forms.Form):
     class Meta:
-        model = Account
-        fields = [
-            "number"
-        ]
+        fields = []
+
+
+class AccountLookForForm(forms.Form):
+    number = forms.CharField(
+        max_length=12,
+        min_length=12
+    )
 
     def clean(self):
         cleaned_data = super().clean()

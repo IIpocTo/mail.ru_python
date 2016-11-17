@@ -2,9 +2,10 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
+from django.core.urlresolvers import reverse
 
 from .models import Account, Charge
-from .forms import ChargeForm, AccountForm, AccountLookForForm
+from .forms import ChargeForm, AccountForm, AccountLookForForm, ChargeGoToForm
 
 
 class MainPageView(generic.TemplateView):
@@ -54,11 +55,11 @@ class AccountSearchView(generic.TemplateView):
     form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
-        form_look_for = self.form_class(request.POST)
+        form_look_for = self.form_look_for_class(request.POST)
         form = self.form_class
 
         if form_look_for.is_valid():
-            return HttpResponseRedirect(form_look_for.instance.get_url())
+            return HttpResponseRedirect(reverse('finances:account', args=[request.POST.get('number')]))
 
         return render(request, self.template_name, {
             "title": "Finances",
@@ -69,8 +70,10 @@ class AccountSearchView(generic.TemplateView):
 
 class AccountView(generic.FormView):
     template_name = "charge.html"
+    form_class = ChargeGoToForm
 
     def get(self, request, number=None, *args, **kwargs):
+        form = self.form_class
         account = get_object_or_404(Account, number=number)
         deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
         withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
@@ -78,8 +81,26 @@ class AccountView(generic.FormView):
             "title": "Add charge",
             "deposit": deposit,
             "withdraw": withdraw,
-            "account_number": account.number
+            "account_number": account.number,
+            "form": form
         })
+
+    def post(self, request, number=None, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('finances:add_charge', args=[number]))
+        account = get_object_or_404(Account, number=number)
+        deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
+        withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
+        return render(
+            request, self.template_name, {
+                "title": "Add charge",
+                "deposit": deposit,
+                "withdraw": withdraw,
+                "account_number": account.number,
+                "form": form
+            }
+        )
 
 
 class AddChargeView(generic.FormView):
@@ -96,6 +117,7 @@ class AddChargeView(generic.FormView):
         })
 
     def post(self, request, number=None, *args, **kwargs):
+        get_object_or_404(Account, number=number)
         form = self.form_class(request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
@@ -108,10 +130,9 @@ class AddChargeView(generic.FormView):
 
             messages.success(request, success_message)
             messages.info(request, info_message)
-            return HttpResponseRedirect(instance.get_absolute_url())
-
+            # return HttpResponseRedirect(instance.get_absolute_url())
         return render(request, self.template_name, {
             "title": self.title_name,
             "form": form,
-            "account": number
+            "account_number": number
         })
