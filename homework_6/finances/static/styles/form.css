@@ -1,0 +1,16 @@
+.messages .success {
+    color: #4caf50;
+}
+
+.messages .info {
+    color: cornflowerblue;
+}
+
+input[id^='id_'] {
+    border: none;
+    border-bottom: 2px solid black;
+}
+
+input[id^='id_']:focus {
+    outline: none;
+}

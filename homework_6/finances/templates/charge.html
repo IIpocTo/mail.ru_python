@@ -1,0 +1,31 @@
+{% extends "template.html" %}
+{% load bootstrap3 %}
+{% block header %}
+    <h1>Charges</h1>
+    <a href='{% url "finances:main" %}'>Return to the main page.</a><br/>
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {% buttons submit='Create new charge' %}{% endbuttons %}
+        </form>
+    </div>
+{% endblock %}
+{% block content %}
+    <div>
+        <table class="left"><caption><h2>Your deposit operations</h2></caption>
+            {% for charge in deposit %}
+                <tr>
+                    <td>{{ charge.date }} -> {{ charge.value }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <table class="right"><caption><h2>Your withdraw operations</h2></caption>
+            {% for charge in withdraw %}
+                <tr>
+                    <td>{{ charge.date }} -> {{ charge.value }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
