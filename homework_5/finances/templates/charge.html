@@ -3,7 +3,7 @@
 {% block header %}
     <h1>Charges</h1>
     <a href='{% url "finances:main" %}'>Return to the main page.</a><br/>
-    <a href="{% url 'finances:add_charge' number=account %}">Add new charge</a>
+    <a href="{% url 'finances:add_charge' number=account_number %}">Add new charge</a>
 {% endblock %}
 {% block content %}
     <div>

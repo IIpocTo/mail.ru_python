@@ -5,7 +5,6 @@ from django.views import generic
 
 from .models import Account, Charge
 from .forms import ChargeForm, AccountForm, AccountLookForForm
-from .generator import random_transactions
 
 
 class MainPageView(generic.TemplateView):
@@ -73,13 +72,13 @@ class AccountView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         account = get_object_or_404(Account, number=number)
-        deposit = Charge.objects.filter(account=account).filter(value__gt = 0.0).order_by('date')
-        withdraw = Charge.objects.filter(account=account).filter(value__lt = 0.0).order_by('date')
+        deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
+        withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
         return render(request, self.template_name, {
             "title": "Add charge",
             "deposit": deposit,
             "withdraw": withdraw,
-            "account": account.number
+            "account_number": account.number
         })
 
 
@@ -93,7 +92,7 @@ class AddChargeView(generic.FormView):
         return render(request, self.template_name, {
             "title": self.title_name,
             "form": self.form_class,
-            "account": number
+            "account_number": number
         })
 
     def post(self, request, number=None, *args, **kwargs):
@@ -115,24 +114,4 @@ class AddChargeView(generic.FormView):
             "title": self.title_name,
             "form": form,
             "account": number
-        })
-
-
-class GeneratorView(generic.TemplateView):
-    template_name = 'generator.html'
-
-    def get(self, request, *args, **kwargs):
-        deposit = []
-        withdraw = []
-
-        for (date, value) in random_transactions():
-            if value < 0:
-                withdraw.append((date, value))
-            else:
-                deposit.append((date, value))
-
-        return render(request, self.template_name, {
-            "title": "Generator",
-            "deposit": deposit,
-            "withdraw": withdraw
         })
