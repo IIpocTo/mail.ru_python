@@ -24,6 +24,9 @@ class Account(models.Model):
     def get_absolute_url():
         return reverse("finances:main")
 
+    def get_url(self):
+        return reverse('finances:account', args=[str(self.number)])
+
 
 class Charge(models.Model):
     value = models.DecimalField(max_digits=8, decimal_places=2)
@@ -34,4 +37,4 @@ class Charge(models.Model):
         return "( " + str(self.date) + " )" + " " + str(self.value) + " -> " + str(self.account)
 
     def get_absolute_url(self):
-        return reverse("finances:charge", kwargs={"number": self.account})
+        return reverse("finances:account", kwargs={"number": self.account})

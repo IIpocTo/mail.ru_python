@@ -14,6 +14,24 @@ class AccountForm(forms.ModelForm):
         ]
 
 
+class AccountLookForForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = [
+            "number"
+        ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        number = cleaned_data.get('number')
+        account = Account.objects.filter(number=number)
+        if account is not None:
+            return cleaned_data
+        else:
+            self.add_error("number", "There is no such object in database!")
+        return cleaned_data
+
+
 class ChargeForm(forms.ModelForm):
     class Meta:
         model = Charge

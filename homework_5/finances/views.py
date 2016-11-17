@@ -3,23 +3,33 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 
-from .models import Account
-from .forms import ChargeForm, AccountForm
+from .models import Account, Charge
+from .forms import ChargeForm, AccountForm, AccountLookForForm
 from .generator import random_transactions
 
 
 class MainPageView(generic.TemplateView):
     template_name = 'main.html'
     form_class = AccountForm
+    form_look_for_class = AccountLookForForm
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, {
             "title": "Main Page",
-            "form": self.form_class
+            "form": self.form_class,
+            "form_look_for": self.form_look_for_class
         })
+
+
+class AccountInsertView(generic.TemplateView):
+    template_name = 'main.html'
+    form_class = AccountForm
+    form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+        form_look_for = self.form_look_for_class
+
         if form.is_valid():
             instance = form.save(commit=False)
             instance.save()
@@ -34,17 +44,42 @@ class MainPageView(generic.TemplateView):
 
         return render(request, self.template_name, {
             "title": "Finances",
-            "form": form
+            "form": form,
+            "form_look_for": form_look_for
         })
 
 
-class ChargeView(generic.FormView):
+class AccountSearchView(generic.TemplateView):
+    template_name = 'main.html'
+    form_class = AccountForm
+    form_look_for_class = AccountLookForForm
+
+    def post(self, request, *args, **kwargs):
+        form_look_for = self.form_class(request.POST)
+        form = self.form_class
+
+        if form_look_for.is_valid():
+            return HttpResponseRedirect(form_look_for.instance.get_url())
+
+        return render(request, self.template_name, {
+            "title": "Finances",
+            "form": form,
+            "form_look_for": form_look_for
+        })
+
+
+class AccountView(generic.FormView):
     template_name = "charge.html"
 
     def get(self, request, number=None, *args, **kwargs):
-        get_object_or_404(Account, number=number)
+        account = get_object_or_404(Account, number=number)
+        deposit = Charge.objects.filter(account=account).filter(value__gt = 0.0).order_by('date')
+        withdraw = Charge.objects.filter(account=account).filter(value__lt = 0.0).order_by('date')
         return render(request, self.template_name, {
-            "title": "Add charge"
+            "title": "Add charge",
+            "deposit": deposit,
+            "withdraw": withdraw,
+            "account": account.number
         })
 
 
@@ -58,6 +93,7 @@ class AddChargeView(generic.FormView):
         return render(request, self.template_name, {
             "title": self.title_name,
             "form": self.form_class,
+            "account": number
         })
 
     def post(self, request, number=None, *args, **kwargs):
@@ -77,7 +113,8 @@ class AddChargeView(generic.FormView):
 
         return render(request, self.template_name, {
             "title": self.title_name,
-            "form": form
+            "form": form,
+            "account": number
         })
 
 
