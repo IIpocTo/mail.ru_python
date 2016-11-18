@@ -5,7 +5,7 @@ from django.views import generic
 from django.core.urlresolvers import reverse
 
 from .models import Account, Charge
-from .forms import ChargeForm, AccountForm, AccountLookForForm, ChargeGoToForm
+from .forms import ChargeForm, AccountForm, AccountLookForForm
 
 
 class MainPageView(generic.TemplateView):
@@ -69,11 +69,9 @@ class AccountSearchView(generic.TemplateView):
 
 
 class AccountView(generic.FormView):
-    template_name = "charge.html"
-    form_class = ChargeGoToForm
+    template_name = "account.html"
 
     def get(self, request, number=None, *args, **kwargs):
-        form = self.form_class
         account = get_object_or_404(Account, number=number)
         deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
         withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
@@ -82,7 +80,6 @@ class AccountView(generic.FormView):
             "deposit": deposit,
             "withdraw": withdraw,
             "account_number": account.number,
-            "form": form
         })
 
     def post(self, request, number=None, *args, **kwargs):
@@ -106,7 +103,7 @@ class AccountView(generic.FormView):
 class AddChargeView(generic.FormView):
     template_name = "add_charge.html"
     form_class = ChargeForm
-    title_name = "Your charges"
+    title_name = "Add new Charge"
 
     def get(self, request, number=None, *args, **kwargs):
         get_object_or_404(Account, number=number)
@@ -130,7 +127,6 @@ class AddChargeView(generic.FormView):
 
             messages.success(request, success_message)
             messages.info(request, info_message)
-            # return HttpResponseRedirect(instance.get_absolute_url())
         return render(request, self.template_name, {
             "title": self.title_name,
             "form": form,

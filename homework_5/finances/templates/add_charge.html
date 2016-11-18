@@ -1,7 +1,7 @@
 {% extends "template.html" %}
 {% load bootstrap3 %}
 {% block header %}
-    <h1>New Charge</h1>
+    <h1>{{ title }}</h1>
     <a href='{% url "finances:main" %}'>Return to main</a><br/>
     <a href="{% url 'finances:account' number=account_number %}">Return to account page</a>
 {% endblock %}

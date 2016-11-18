@@ -1,11 +1,12 @@
 from django.contrib import messages
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.core.urlresolvers import reverse
 
 from .models import Account, Charge
-from .forms import ChargeForm, AccountForm, AccountLookForForm, ChargeGoToForm
+from .forms import ChargeForm, AccountForm, AccountLookForForm
 
 
 class MainPageView(generic.TemplateView):
@@ -69,44 +70,25 @@ class AccountSearchView(generic.TemplateView):
 
 
 class AccountView(generic.FormView):
-    template_name = "charge.html"
-    form_class = ChargeGoToForm
+    template_name = "account.html"
 
+    @transaction.atomic()
     def get(self, request, number=None, *args, **kwargs):
-        form = self.form_class
         account = get_object_or_404(Account, number=number)
         deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
         withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
         return render(request, self.template_name, {
-            "title": "Add charge",
+            "title": "Account page",
             "deposit": deposit,
             "withdraw": withdraw,
-            "account_number": account.number,
-            "form": form
+            "account_number": account.number
         })
-
-    def post(self, request, number=None, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            return HttpResponseRedirect(reverse('finances:add_charge', args=[number]))
-        account = get_object_or_404(Account, number=number)
-        deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
-        withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
-        return render(
-            request, self.template_name, {
-                "title": "Add charge",
-                "deposit": deposit,
-                "withdraw": withdraw,
-                "account_number": account.number,
-                "form": form
-            }
-        )
 
 
 class AddChargeView(generic.FormView):
     template_name = "add_charge.html"
     form_class = ChargeForm
-    title_name = "Your charges"
+    title_name = "Add new Charge"
 
     def get(self, request, number=None, *args, **kwargs):
         get_object_or_404(Account, number=number)
@@ -130,7 +112,6 @@ class AddChargeView(generic.FormView):
 
             messages.success(request, success_message)
             messages.info(request, info_message)
-            # return HttpResponseRedirect(instance.get_absolute_url())
         return render(request, self.template_name, {
             "title": self.title_name,
             "form": form,
@@ -146,7 +127,7 @@ class AccountStatisticsView(generic.FormView):
         a = map(lambda x: (x.get('date').year, x), Charge.objects.filter(account=account).order_by('date').values())
         stats = list(a)
         result = {}
-        for a,b in stats:
+        for a, b in stats:
             if result.get(a) is not None:
                 if b.get('date').month in result[a]:
                     result[a][b.get('date').month] += b.get('value')

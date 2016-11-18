@@ -14,11 +14,6 @@ class AccountForm(forms.ModelForm):
         ]
 
 
-class ChargeGoToForm(forms.Form):
-    class Meta:
-        fields = []
-
-
 class AccountLookForForm(forms.Form):
     number = forms.CharField(
         max_length=12,

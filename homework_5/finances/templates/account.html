@@ -1,15 +1,12 @@
 {% extends "template.html" %}
 {% load bootstrap3 %}
 {% block header %}
-    <h1>Charges</h1>
+    <h1>{{ title }}</h1>
     <a href='{% url "finances:main" %}'>Return to the main page.</a><br/>
-    <a href="{% url 'finances:statistics' number=account_number %}">Look at your statistics</a><br/>
     <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <form method="post">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            {% buttons submit='Create new charge' %}{% endbuttons %}
-        </form>
+        <a href='{% url 'finances:add_charge' number=account_number %}'>
+            <button class="btn btn-primary">Create new charge</button>
+        </a>
     </div>
 {% endblock %}
 {% block content %}
