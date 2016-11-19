@@ -1,5 +1,9 @@
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Sum
+from django.db.models.functions import Extract
+from django.db.models.functions import TruncMonth
+from django.db.models.functions import TruncYear
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
@@ -124,19 +128,28 @@ class AccountStatisticsView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         account = get_object_or_404(Account, number=number)
-        a = map(lambda x: (x.get('date').year, x), Charge.objects.filter(account=account).order_by('date').values())
-        stats = list(a)
-        result = {}
-        for a, b in stats:
-            if result.get(a) is not None:
-                if b.get('date').month in result[a]:
-                    result[a][b.get('date').month] += b.get('value')
-                else:
-                    result[a][b.get('date').month] = b.get('value')
-            else:
-                result[a] = {b.get('date').month: b.get('value')}
+        stats = (Charge.objects
+                 .filter(account=account)
+                 .annotate(month=Extract('date', 'month'))
+                 .values('month')
+                 .annotate(total=Sum('value'))
+                 .annotate(year=Extract('date', 'year'))
+                 .values('year', 'month', 'total')
+                 .order_by('year', 'month'))
+        print(stats)
+        # a = map(lambda x: (x.get('date').year, x), Charge.objects.filter(account=account).order_by('date').values())
+        # stats = list(a)
+        # result = {}
+        # for a, b in stats:
+        #     if result.get(a) is not None:
+        #         if b.get('date').month in result[a]:
+        #             result[a][b.get('date').month] += b.get('value')
+        #         else:
+        #             result[a][b.get('date').month] = b.get('value')
+        #     else:
+        #         result[a] = {b.get('date').month: b.get('value')}
         return render(request, self.template_name, {
             "title": "Account Statistics",
-            "stats": result,
+            "stats": stats,
             "account_number": number
         })

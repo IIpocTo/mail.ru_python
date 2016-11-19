@@ -8,16 +8,12 @@
 {% block content %}
     <div>
         <table class="container">
-            {% for k,v in stats.items %}
+            {% for elem in stats %}
                 <tr>
-                    <th>{{ k }}</th>
+                    <th>{{ elem.year }}</th>
+                    <th>{{ elem.month }}</th>
+                    <th>{{ elem.total }}</th>
                 </tr>
-                {% for key, value in v.items %}
-                    <tr>
-                        <td>{{ key }}</td>
-                        <td>{{ value }}</td>
-                    </tr>
-                {% endfor %}
             {% endfor %}
         </table>
     </div>
