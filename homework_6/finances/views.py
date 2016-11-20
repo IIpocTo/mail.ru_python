@@ -8,7 +8,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 
+from .calendar import get_month_name
 from .models import Account, Charge
 from .forms import ChargeForm, AccountForm, AccountLookForForm
 
@@ -126,30 +128,37 @@ class AddChargeView(generic.FormView):
 class AccountStatisticsView(generic.FormView):
     template_name = "statistics.html"
 
+    def get_my_data(self, vars, acc=None):
+        if len(vars) == 0:
+            return acc
+        else:
+            a, b, c = vars.pop(-1)
+            if acc is None:
+                acc = {a: {get_month_name(b): c}}
+            else:
+                if acc.get(a) is not None:
+                    if get_month_name(b) not in acc[a]:
+                        acc[a][get_month_name(b)] = c
+                else:
+                    acc[a] = {get_month_name(b): c}
+            acc_new = self.get_my_data(vars,acc)
+            return acc_new
+
     def get(self, request, number=None, *args, **kwargs):
         account = get_object_or_404(Account, number=number)
-        stats = (Charge.objects
+        stats2 = (Charge.objects
                  .filter(account=account)
                  .annotate(month=Extract('date', 'month'))
                  .values('month')
                  .annotate(total=Sum('value'))
                  .annotate(year=Extract('date', 'year'))
                  .values('year', 'month', 'total')
-                 .order_by('year', 'month'))
-        print(stats)
-        # a = map(lambda x: (x.get('date').year, x), Charge.objects.filter(account=account).order_by('date').values())
-        # stats = list(a)
-        # result = {}
-        # for a, b in stats:
-        #     if result.get(a) is not None:
-        #         if b.get('date').month in result[a]:
-        #             result[a][b.get('date').month] += b.get('value')
-        #         else:
-        #             result[a][b.get('date').month] = b.get('value')
-        #     else:
-        #         result[a] = {b.get('date').month: b.get('value')}
+                 .order_by('year', 'month')
+                 .values_list('year','month','total'))
+        stats = self.get_my_data(list(stats2))
         return render(request, self.template_name, {
             "title": "Account Statistics",
-            "stats": stats,
+            "data": stats,
             "account_number": number
         })
+
