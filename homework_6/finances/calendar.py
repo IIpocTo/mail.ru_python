@@ -1,4 +1,4 @@
-monther = {
+months = {
     1: 'January',
     2: 'February',
     3: 'March',
@@ -15,4 +15,4 @@ monther = {
 
 
 def get_month_name(month):
-    return monther[month]
+    return months[month]
