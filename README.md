@@ -19,4 +19,12 @@
         <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/homework_4">
             Домашнее задание №4: Представления и формы Django</a>
     </li>
+    <li>
+        <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/homework_5">
+            Домашнее задание №5: Базы данных, модели Django | Часть 1</a>
+    </li>
+    <li>
+        <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/homework_6">
+            Домашнее задание №6: Базы данных, модели Django | Часть 2</a>
+    </li>
 </ul>
