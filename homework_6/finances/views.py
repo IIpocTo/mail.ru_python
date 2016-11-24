@@ -125,11 +125,11 @@ class AddChargeView(generic.FormView):
 class AccountStatisticsView(generic.FormView):
     template_name = "statistics.html"
 
-    def get_my_data(self, vars, acc=None):
-        if len(vars) == 0:
+    def get_my_data(self, variables, acc=None):
+        if len(variables) == 0:
             return acc
         else:
-            a, b, c = vars.pop(-1)
+            a, b, c = variables.pop(-1)
             if acc is None:
                 acc = {a: {get_month_name(b): c}}
             else:
@@ -138,7 +138,7 @@ class AccountStatisticsView(generic.FormView):
                         acc[a][get_month_name(b)] = c
                 else:
                     acc[a] = {get_month_name(b): c}
-            acc_new = self.get_my_data(vars, acc)
+            acc_new = self.get_my_data(variables, acc)
             return acc_new
 
     def get(self, request, number=None, *args, **kwargs):
