@@ -1,0 +1,24 @@
+{% extends "template.html" %}
+{% load bootstrap3 %}
+{% block header %}
+    <h1><i>Hello, Welcome to the Finance project main page.</i></h1>
+{% endblock %}
+{% block content %}
+    {% bootstrap_messages %}
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <form method="post" action='{% url "finances:insert" %}'>
+            <legend>Create new Account</legend>
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            {% buttons submit='Create new account' %}{% endbuttons %}
+        </form>
+    </div>
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <form method="post" action='{% url "finances:search" %}'>
+            <legend>Type your account number here</legend>
+            {% csrf_token %}
+            {% bootstrap_form form_look_for %}
+            {% buttons submit='Go to an account' %}{% endbuttons %}
+        </form>
+    </div>
+{% endblock %}
