@@ -1,18 +1,15 @@
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Extract
-from django.db.models.functions import TruncMonth
-from django.db.models.functions import TruncYear
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
-from django.core.urlresolvers import reverse
-from django.db.models import Q
 
 from .calendar import get_month_name
-from .models import Account, Charge
 from .forms import ChargeForm, AccountForm, AccountLookForForm
+from .models import Account, Charge
 
 
 class MainPageView(generic.TemplateView):
@@ -141,24 +138,23 @@ class AccountStatisticsView(generic.FormView):
                         acc[a][get_month_name(b)] = c
                 else:
                     acc[a] = {get_month_name(b): c}
-            acc_new = self.get_my_data(vars,acc)
+            acc_new = self.get_my_data(vars, acc)
             return acc_new
 
     def get(self, request, number=None, *args, **kwargs):
         account = get_object_or_404(Account, number=number)
         stats2 = (Charge.objects
-                 .filter(account=account)
-                 .annotate(month=Extract('date', 'month'))
-                 .values('month')
-                 .annotate(total=Sum('value'))
-                 .annotate(year=Extract('date', 'year'))
-                 .values('year', 'month', 'total')
-                 .order_by('year', 'month')
-                 .values_list('year','month','total'))
+                  .filter(account=account)
+                  .annotate(month=Extract('date', 'month'))
+                  .values('month')
+                  .annotate(total=Sum('value'))
+                  .annotate(year=Extract('date', 'year'))
+                  .values('year', 'month', 'total')
+                  .order_by('year', 'month')
+                  .values_list('year', 'month', 'total'))
         stats = self.get_my_data(list(stats2))
         return render(request, self.template_name, {
             "title": "Account Statistics",
             "data": stats,
             "account_number": number
         })
-
