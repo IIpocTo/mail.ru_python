@@ -27,4 +27,8 @@
         <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/homework_6">
             Домашнее задание №6: Базы данных, модели Django | Часть 2</a>
     </li>
+    <li>
+        <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/homework_7">
+            Домашнее задание №7: Взаимодействие с пользователем, безопасность веб-приложений</a>
+    </li>
 </ul>
