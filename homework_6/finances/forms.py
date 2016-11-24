@@ -44,7 +44,7 @@ class ChargeForm(forms.ModelForm):
 
         if value is None or date is None:
             return cleaned_data
-        if Decimal.compare(Decimal(0), value) == Decimal('0'):
+        if value == Decimal(0):
             self.add_error("value", "Charge can't be a zero value")
         if value < 0 and charge_date > date.today():
             self.add_error("date", "You can't set negative charge on future day")
