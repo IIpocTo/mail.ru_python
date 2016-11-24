@@ -129,15 +129,15 @@ class AccountStatisticsView(generic.FormView):
         if len(variables) == 0:
             return acc
         else:
-            a, b, c = variables.pop(-1)
+            year, month, total = variables.pop(-1)
             if acc is None:
-                acc = {a: {get_month_name(b): c}}
+                acc = {year: {get_month_name(month): total}}
             else:
-                if acc.get(a) is not None:
-                    if get_month_name(b) not in acc[a]:
-                        acc[a][get_month_name(b)] = c
+                if acc.get(year) is not None:
+                    if get_month_name(month) not in acc[year]:
+                        acc[year][get_month_name(month)] = total
                 else:
-                    acc[a] = {get_month_name(b): c}
+                    acc[year] = {get_month_name(month): total}
             acc_new = self.get_my_data(variables, acc)
             return acc_new
 
