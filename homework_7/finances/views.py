@@ -48,10 +48,9 @@ class RegisterView(generic.TemplateView):
                 email=form.cleaned_data['email'],
                 phone=form.cleaned_data['phone']
             )
-            request.session['user_name'] = user_name
             success_message = "You have been registered"
             info_message = "You registered new User(" \
-                           "login: " + str(request.session['user_name']) \
+                           "login: " + str(user_name) \
                            + ")"
             messages.success(request, success_message)
             messages.info(request, info_message)
@@ -78,10 +77,12 @@ class LoginView(generic.TemplateView):
         form_login = self.form_login_class(request.POST)
 
         if form_login.is_valid():
-            user = authenticate(username=form_login.username, password=form_login.password)
+            username = form_login.cleaned_data['username']
+            password = form_login.cleaned_data['password']
+            user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return HttpResponseRedirect(reverse("finances:profile"), args=[user])
+                return HttpResponseRedirect(reverse("finances:profile", args=[user]))
             else:
                 messages.error(request, "Your login data is not valid")
                 return render(request, self.template_name, {
