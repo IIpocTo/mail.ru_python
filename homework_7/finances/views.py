@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Sum
@@ -6,8 +8,6 @@ from django.db.models.functions import Extract
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
-from django.core.exceptions import PermissionDenied
-from django.contrib.auth import authenticate, login, logout
 
 from .calendar import get_month_name
 from .forms import ChargeForm, AccountForm, AccountLookForForm, RegisterForm, LoginForm, ProfileUpdateForm
@@ -41,8 +41,14 @@ class RegisterView(generic.TemplateView):
         form_login = self.form_login_class
 
         if form.is_valid():
-            UserProfile.objects.create_user(username=form.username, password=form.password)
-            request.session['user_name'] = form.username
+            user_name = form.cleaned_data['username']
+            UserProfile.objects.create_user(
+                username=user_name,
+                password=form.cleaned_data['password'],
+                email=form.cleaned_data['email'],
+                phone=form.cleaned_data['phone']
+            )
+            request.session['user_name'] = user_name
             success_message = "You have been registered"
             info_message = "You registered new User(" \
                            "login: " + str(request.session['user_name']) \

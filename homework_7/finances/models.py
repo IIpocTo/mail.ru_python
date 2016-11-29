@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
-from django.conf import settings
 
 
 class UserProfile(AbstractUser):
