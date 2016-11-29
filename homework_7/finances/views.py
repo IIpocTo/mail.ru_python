@@ -82,7 +82,7 @@ class LoginView(generic.TemplateView):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return HttpResponseRedirect(reverse("finances:profile", args=[user]))
+                return HttpResponseRedirect(reverse("finances:profile"))
             else:
                 messages.error(request, "Your login data is not valid")
                 return render(request, self.template_name, {
