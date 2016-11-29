@@ -93,10 +93,14 @@ class LoginView(generic.TemplateView):
 
 class ProfileUpdateView(generic.TemplateView):
     template_name = 'profile.html'
-    form_class = ProfileUpdateForm
+    form_update_class = ProfileUpdateForm
+    form_class = AccountForm
+    form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+        form_update = self.form_update_class(request.POST)
+        form = self.form_class
+        form_look_for = self.form_look_for_class
 
         if form.is_valid():
             u = UserProfile.objects.get(username__exact='john')
@@ -104,38 +108,48 @@ class ProfileUpdateView(generic.TemplateView):
             u.save()
             return render(request, self.template_name, {
                 "title": "Profile",
-                "form": self.form_class
+                "form": form,
+                "form_update": form_update,
+                "form_look_for": form_look_for
             })
         else:
             return render(request, self.template_name, {
                 "title": "Profile",
-                "form": form
+                "form": form,
+                "form_update": form_update,
+                "form_look_for": form_look_for
             })
 
 
 class ProfileView(generic.TemplateView):
     template_name = 'profile.html'
-    form_class = ProfileUpdateForm
+    form_update_class = ProfileUpdateForm
+    form_class = AccountForm
+    form_look_for_class = AccountLookForForm
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
 
             return render(request, self.template_name, {
                 "title": "Profile",
-                "form": self.form_class
+                "form": self.form_class,
+                "form_update": self.form_update_class,
+                "form_look_for": self.form_look_for_class
             })
         else:
             raise PermissionDenied
 
 
 class AccountInsertView(generic.TemplateView):
-    template_name = 'main.html'
+    template_name = 'profile.html'
+    form_update_class = ProfileUpdateForm
     form_class = AccountForm
     form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         form_look_for = self.form_look_for_class
+        form_update = self.form_update_class
 
         if form.is_valid():
             instance = form.save(commit=False)
@@ -150,27 +164,31 @@ class AccountInsertView(generic.TemplateView):
             return HttpResponseRedirect(instance.get_absolute_url())
 
         return render(request, self.template_name, {
-            "title": "Finances",
+            "title": "Profile",
             "form": form,
+            "form_update": form_update,
             "form_look_for": form_look_for
         })
 
 
 class AccountSearchView(generic.TemplateView):
-    template_name = 'main.html'
+    template_name = 'profile.html'
+    form_update_class = ProfileUpdateForm
     form_class = AccountForm
     form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
         form_look_for = self.form_look_for_class(request.POST)
         form = self.form_class
+        form_update = self.form_update_class
 
         if form_look_for.is_valid():
             return HttpResponseRedirect(reverse('finances:account', args=[request.POST.get('number')]))
 
         return render(request, self.template_name, {
-            "title": "Finances",
+            "title": "Profile",
             "form": form,
+            "form_update": form_update,
             "form_look_for": form_look_for
         })
 
