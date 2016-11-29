@@ -46,7 +46,7 @@ class LoginForm(forms.ModelForm):
         password = self.cleaned_data.get('password')
         user = UserProfile.objects.filter(username=username).get()
         if user is None:
-            self.add_error("username", "There is no such object in database!")
+            self.add_error("username", "There is no such user!")
         else:
             if not user.check_password(password):
                 self.add_error("password", "Password is not correct!")
@@ -64,7 +64,7 @@ class AccountLookForForm(forms.Form):
         number = cleaned_data.get('number')
         account = Account.objects.filter(number=number)
         if account is None:
-            self.add_error("number", "There is no such object in database!")
+            self.add_error("number", "There is no such account!")
         return cleaned_data
 
 

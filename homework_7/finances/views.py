@@ -5,8 +5,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Extract
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
 from .calendar import get_month_name
@@ -21,8 +20,7 @@ class MainPageView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            pass
-            return HttpResponseRedirect(reverse("finances:profile"))
+            return redirect(reverse("finances:profile"))
         else:
             return render(request, self.template_name, {
                 "title": "Main Page",
@@ -82,7 +80,7 @@ class LoginView(generic.TemplateView):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return HttpResponseRedirect(reverse("finances:profile"))
+                return redirect(reverse("finances:profile"))
             else:
                 messages.error(request, "Your login data is not valid")
                 return render(request, self.template_name, {
@@ -168,7 +166,7 @@ class AccountInsertView(generic.TemplateView):
 
             messages.success(request, success_message)
             messages.info(request, info_message)
-            return HttpResponseRedirect(instance.get_absolute_url())
+            return redirect(instance.get_absolute_url())
 
         return render(request, self.template_name, {
             "title": "Profile",
@@ -190,7 +188,7 @@ class AccountSearchView(generic.TemplateView):
         form_update = self.form_update_class
 
         if form_look_for.is_valid():
-            return HttpResponseRedirect(reverse('finances:account', args=[request.POST.get('number')]))
+            return redirect(reverse('finances:account', args=[request.POST.get('number')]))
 
         return render(request, self.template_name, {
             "title": "Profile",
