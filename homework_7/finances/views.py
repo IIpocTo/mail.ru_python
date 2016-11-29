@@ -6,23 +6,126 @@ from django.db.models.functions import Extract
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth import authenticate, login, logout
 
 from .calendar import get_month_name
-from .forms import ChargeForm, AccountForm, AccountLookForForm
-from .models import Account, Charge
+from .forms import ChargeForm, AccountForm, AccountLookForForm, RegisterForm, LoginForm, ProfileUpdateForm
+from .models import Account, Charge, UserProfile
 
 
 class MainPageView(generic.TemplateView):
-    template_name = 'main.html'
-    form_class = AccountForm
-    form_look_for_class = AccountLookForForm
+    template_name = 'index.html'
+    form_class = RegisterForm
+    form_login_class = LoginForm
 
     def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            pass
+            return HttpResponseRedirect(reverse("finances:profile"))
+        else:
+            return render(request, self.template_name, {
+                "title": "Main Page",
+                "form": self.form_class,
+                "form_look_for": self.form_login_class
+            })
+
+
+class RegisterView(generic.TemplateView):
+    template_name = 'index.html'
+    form_class = RegisterForm
+    form_login_class = LoginForm
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        form_login = self.form_login_class
+
+        if form.is_valid():
+            UserProfile.objects.create_user(username=form.username, password=form.password)
+            request.session['user_name'] = form.username
+            success_message = "You have been registered"
+            info_message = "You registered new User(" \
+                           "login: " + str(request.session['user_name']) \
+                           + ")"
+            messages.success(request, success_message)
+            messages.info(request, info_message)
+
+            return render(request, self.template_name, {
+                "title": "Main Page",
+                "form": self.form_class,
+                "form_look_for": form_login
+            })
         return render(request, self.template_name, {
             "title": "Main Page",
-            "form": self.form_class,
-            "form_look_for": self.form_look_for_class
+            "form": form,
+            "form_look_for": form_login
         })
+
+
+class LoginView(generic.TemplateView):
+    template_name = 'index.html'
+    form_class = RegisterForm
+    form_login_class = LoginForm
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class
+        form_login = self.form_login_class(request.POST)
+
+        if form_login.is_valid():
+            user = authenticate(username=form_login.username, password=form_login.password)
+            if user is not None:
+                login(request, user)
+                return HttpResponseRedirect(reverse("finances:profile"), args=[user])
+            else:
+                messages.error(request, "Your login data is not valid")
+                return render(request, self.template_name, {
+                    "title": "Main page",
+                    "form": form,
+                    "form_look_for": self.form_login_class
+                })
+        messages.error(request, "Incorrect data")
+        return render(request, self.template_name, {
+            "title": "Main page",
+            "form": form,
+            "form_look_for": form_login
+        })
+
+
+class ProfileUpdateView(generic.TemplateView):
+    template_name = 'profile.html'
+    form_class = ProfileUpdateForm
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            u = UserProfile.objects.get(username__exact='john')
+            u.address = form.address
+            u.save()
+            return render(request, self.template_name, {
+                "title": "Profile",
+                "form": self.form_class
+            })
+        else:
+            return render(request, self.template_name, {
+                "title": "Profile",
+                "form": form
+            })
+
+
+class ProfileView(generic.TemplateView):
+    template_name = 'profile.html'
+    form_class = ProfileUpdateForm
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+
+            return render(request, self.template_name, {
+                "title": "Profile",
+                "form": self.form_class
+            })
+        else:
+            raise PermissionDenied
 
 
 class AccountInsertView(generic.TemplateView):
@@ -77,15 +180,21 @@ class AccountView(generic.FormView):
 
     @transaction.atomic()
     def get(self, request, number=None, *args, **kwargs):
-        account = get_object_or_404(Account, number=number)
-        deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
-        withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
-        return render(request, self.template_name, {
-            "title": "Account page",
-            "deposit": deposit,
-            "withdraw": withdraw,
-            "account_number": account.number
-        })
+        if request.user.is_authenticated:
+            account = get_object_or_404(Account, number=number)
+            if account.user == request.user:
+                deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
+                withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
+                return render(request, self.template_name, {
+                    "title": "Account page",
+                    "deposit": deposit,
+                    "withdraw": withdraw,
+                    "account_number": account.number
+                })
+            else:
+                raise PermissionDenied
+        else:
+            raise PermissionDenied
 
 
 class AddChargeView(generic.FormView):
@@ -94,12 +203,18 @@ class AddChargeView(generic.FormView):
     title_name = "Add new Charge"
 
     def get(self, request, number=None, *args, **kwargs):
-        get_object_or_404(Account, number=number)
-        return render(request, self.template_name, {
-            "title": self.title_name,
-            "form": self.form_class,
-            "account_number": number
-        })
+        if request.user.is_authenticated:
+            account = get_object_or_404(Account, number=number)
+            if account.user == request.user:
+                return render(request, self.template_name, {
+                    "title": self.title_name,
+                    "form": self.form_class,
+                    "account_number": number
+                })
+            else:
+                raise PermissionDenied
+        else:
+            raise PermissionDenied
 
     def post(self, request, number=None, *args, **kwargs):
         get_object_or_404(Account, number=number)
@@ -142,19 +257,25 @@ class AccountStatisticsView(generic.FormView):
             return acc_new
 
     def get(self, request, number=None, *args, **kwargs):
-        account = get_object_or_404(Account, number=number)
-        stats2 = (Charge.objects
-                  .filter(account=account)
-                  .annotate(month=Extract('date', 'month'))
-                  .values('month')
-                  .annotate(total=Sum('value'))
-                  .annotate(year=Extract('date', 'year'))
-                  .values('year', 'month', 'total')
-                  .order_by('year', 'month')
-                  .values_list('year', 'month', 'total'))
-        stats = self.get_my_data(list(stats2))
-        return render(request, self.template_name, {
-            "title": "Account Statistics",
-            "data": stats,
-            "account_number": number
-        })
+        if request.user.is_authenticated:
+            account = get_object_or_404(Account, number=number)
+            if account.user == request.user:
+                stats2 = (Charge.objects
+                          .filter(account=account)
+                          .annotate(month=Extract('date', 'month'))
+                          .values('month')
+                          .annotate(total=Sum('value'))
+                          .annotate(year=Extract('date', 'year'))
+                          .values('year', 'month', 'total')
+                          .order_by('year', 'month')
+                          .values_list('year', 'month', 'total'))
+                stats = self.get_my_data(list(stats2))
+                return render(request, self.template_name, {
+                    "title": "Account Statistics",
+                    "data": stats,
+                    "account_number": number
+                })
+            else:
+                raise PermissionDenied
+        else:
+            raise PermissionDenied

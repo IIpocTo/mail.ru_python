@@ -1,8 +1,15 @@
 from datetime import datetime
 
+from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from django.conf import settings
+
+
+class UserProfile(AbstractUser):
+    phone = models.CharField(max_length=11, unique=True)
+    address = models.CharField(max_length=100, null=True)
 
 
 class Account(models.Model):
@@ -16,6 +23,7 @@ class Account(models.Model):
             message="Account number must have precisely 12 digits and can not start with 0"
         )
     ])
+    user = models.ForeignKey(UserProfile)
 
     def __str__(self):
         return str(self.number)

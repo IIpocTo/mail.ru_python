@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django import forms
 
-from .models import Charge, Account
+from .models import Charge, Account, UserProfile
 
 
 class AccountForm(forms.ModelForm):
@@ -11,6 +11,34 @@ class AccountForm(forms.ModelForm):
         model = Account
         fields = [
             "number"
+        ]
+
+
+class RegisterForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = [
+            "username",
+            "password",
+            "email",
+            "phone"
+        ]
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = [
+            "address"
+        ]
+
+
+class LoginForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = [
+            "username",
+            "password"
         ]
 
 
