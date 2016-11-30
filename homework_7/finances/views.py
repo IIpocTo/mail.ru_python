@@ -8,7 +8,6 @@ from django.db.models.functions import Extract
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
-from django.views.decorators.csrf import csrf_protect
 
 from .calendar import get_month_name
 from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm
@@ -32,7 +31,7 @@ class RegisterView(generic.TemplateView):
     template_name = 'register.html'
     form_class = RegisterForm
 
-    def get(self,request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         return render(request, self.template_name, {
             "title": "Register",
             "form": self.form_class,
@@ -104,7 +103,6 @@ class LogoutView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
             logout(request)
             return redirect("finances:main")
         else:
@@ -115,10 +113,19 @@ class ProfileUpdateView(generic.TemplateView):
     template_name = 'profile.html'
 
     def post(self, request, *args, **kwargs):
-        address = request.POST.get('address')
         u = UserProfile.objects.get(username=request.user.username)
-        u.address = address
-        u.save()
+        address = request.POST.get('address')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        if address is not None:
+            u.address = address
+            u.save()
+        if first_name is not None:
+            u.first_name = first_name
+            u.save()
+        if last_name is not None:
+            u.last_name = last_name
+            u.save()
         return HttpResponse("ok")
 
 
@@ -216,7 +223,7 @@ class AddChargeView(generic.FormView):
                     "title": self.title_name,
                     "form": self.form_class,
                     "account_number": number,
-                    "accounts":accounts
+                    "accounts": accounts
                 })
             else:
                 raise PermissionDenied
@@ -319,14 +326,15 @@ class PublicProfileView(generic.TemplateView):
             user_filter = UserProfile.objects.filter(username=username)
             if user_filter.count() != 0:
                 public_user = user_filter.get()
+                print(public_user.first_name)
                 return render(request, self.template_name, {
                     "title": "Public profile",
                     "user": public_user
                 })
             else:
                 return render(request, "404.html", {
-                "title": "404 page"
-            })
+                    "title": "404 page"
+                })
 
         else:
             raise PermissionDenied
