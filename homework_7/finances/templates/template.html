@@ -7,6 +7,7 @@
     {% bootstrap_css %}
     {% bootstrap_javascript jquery=1 %}
     <link rel="stylesheet" href="{% static 'styles/table_style.css' %}"/>
+    <script type="text/javascript" src="{% static 'scripts/script.js' %}"></script>
 </head>
 <body>
 <nav role="navigation" class="navbar navbar-default">
@@ -24,6 +25,9 @@
     <div id="navbarCollapse" class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
             <li><a href="{% url "finances:main" %}">Main page</a></li>
+            {% if request.user.is_authenticated %}
+            <li><a href='{% url "finances:profile" %}'>Profile</a></li>
+            {% endif %}
         </ul>
         <ul class="nav navbar-nav navbar-right">
             {% if not request.user.is_authenticated %}

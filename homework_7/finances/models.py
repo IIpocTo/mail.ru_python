@@ -22,7 +22,7 @@ class Account(models.Model):
             message="Account number must have precisely 12 digits and can not start with 0"
         )
     ])
-    user = models.ForeignKey(UserProfile)
+    user = models.ForeignKey(UserProfile, related_name='accounts')
 
     def __str__(self):
         return str(self.number)

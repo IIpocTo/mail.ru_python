@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Extract
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import generic
 
@@ -109,32 +109,37 @@ class LogoutView(generic.TemplateView):
 
 class ProfileUpdateView(generic.TemplateView):
     template_name = 'profile.html'
-    form_update_class = ProfileUpdateForm
-    form_class = AccountForm
-    form_look_for_class = AccountLookForForm
+    # form_update_class = ProfileUpdateForm
+    # form_class = AccountForm
+    # form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
-        form_update = self.form_update_class(request.POST)
-        form = self.form_class
-        form_look_for = self.form_look_for_class
-
-        if form.is_valid():
-            u = UserProfile.objects.get(username__exact='john')
-            u.address = form.address
-            u.save()
-            return render(request, self.template_name, {
-                "title": "Profile",
-                "form": form,
-                "form_update": form_update,
-                "form_look_for": form_look_for
-            })
-        else:
-            return render(request, self.template_name, {
-                "title": "Profile",
-                "form": form,
-                "form_update": form_update,
-                "form_look_for": form_look_for
-            })
+        address = request.POST.get('address')
+        # form_update = self.form_update_class(request.POST)
+        # form = self.form_class
+        # form_look_for = self.form_look_for_class
+        #
+        # if form.is_valid():
+        #     u = UserProfile.objects.get(username__exact='john')
+        #     u.address = form.address
+        #     u.save()
+        #     return render(request, self.template_name, {
+        #         "title": "Profile",
+        #         "form": form,
+        #         "form_update": form_update,
+        #         "form_look_for": form_look_for
+        #     })
+        # else:
+        #     return render(request, self.template_name, {
+        #         "title": "Profile",
+        #         "form": form,
+        #         "form_update": form_update,
+        #         "form_look_for": form_look_for
+        #     })
+        u = UserProfile.objects.get(username=request.user.username)
+        u.address = address
+        u.save()
+        return HttpResponse("ok")
 
 
 class ProfileView(generic.TemplateView):
@@ -169,6 +174,7 @@ class AccountInsertView(generic.TemplateView):
 
         if form.is_valid():
             instance = form.save(commit=False)
+            instance.user = request.user
             instance.save()
             success_message = "Form successfully validated!"
             info_message = "You created new Account(" \
@@ -177,7 +183,12 @@ class AccountInsertView(generic.TemplateView):
 
             messages.success(request, success_message)
             messages.info(request, info_message)
-            return HttpResponseRedirect(instance.get_absolute_url())
+            return render(request, self.template_name, {
+                "title": "Profile",
+                "form": form,
+                "form_update": form_update,
+                "form_look_for": form_look_for
+            })
 
         return render(request, self.template_name, {
             "title": "Profile",
