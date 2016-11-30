@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -16,29 +16,25 @@ from .models import Account, Charge, UserProfile
 
 class MainPageView(generic.TemplateView):
     template_name = 'index.html'
-    form_class = RegisterForm
-    form_login_class = LoginForm
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            pass
-            return HttpResponseRedirect(reverse("finances:profile"))
-        else:
-            return render(request, self.template_name, {
-                "title": "Main Page",
-                "form": self.form_class,
-                "form_look_for": self.form_login_class
-            })
+        return render(request, self.template_name, {
+            "title": "Main Page",
+        })
 
 
 class RegisterView(generic.TemplateView):
-    template_name = 'index.html'
+    template_name = 'register.html'
     form_class = RegisterForm
-    form_login_class = LoginForm
+
+    def get(self,request, *args, **kwargs):
+        return render(request, self.template_name, {
+            "title": "Register",
+            "form": self.form_class,
+        })
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        form_login = self.form_login_class
 
         if form.is_valid():
             user_name = form.cleaned_data['username']
@@ -56,29 +52,31 @@ class RegisterView(generic.TemplateView):
             messages.info(request, info_message)
 
             return render(request, self.template_name, {
-                "title": "Main Page",
-                "form": self.form_class,
-                "form_look_for": form_login
+                "title": "Register",
+                "form": self.form_class
             })
         return render(request, self.template_name, {
-            "title": "Main Page",
-            "form": form,
-            "form_look_for": form_login
+            "title": "Register",
+            "form": form
         })
 
 
 class LoginView(generic.TemplateView):
-    template_name = 'index.html'
-    form_class = RegisterForm
-    form_login_class = LoginForm
+    template_name = 'auth.html'
+    form_class = LoginForm
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, {
+            "title": "Login",
+            "form": self.form_class,
+        })
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class
-        form_login = self.form_login_class(request.POST)
+        form = self.form_class(request.POST)
 
-        if form_login.is_valid():
-            username = form_login.cleaned_data['username']
-            password = form_login.cleaned_data['password']
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
@@ -86,16 +84,27 @@ class LoginView(generic.TemplateView):
             else:
                 messages.error(request, "Your login data is not valid")
                 return render(request, self.template_name, {
-                    "title": "Main page",
-                    "form": form,
-                    "form_look_for": self.form_login_class
+                    "title": "Login",
+                    "form": form
                 })
         messages.error(request, "Incorrect data")
         return render(request, self.template_name, {
-            "title": "Main page",
-            "form": form,
-            "form_look_for": form_login
+            "title": "Login",
+            "form": form
         })
+
+
+class LogoutView(generic.TemplateView):
+    template_name = 'index.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            logout(request)
+            return render(request, self.template_name, {
+                "title": "Main page"
+            })
+        else:
+            raise PermissionDenied
 
 
 class ProfileUpdateView(generic.TemplateView):
