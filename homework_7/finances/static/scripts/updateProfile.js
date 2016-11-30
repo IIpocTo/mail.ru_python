@@ -77,7 +77,7 @@ $(document).ready(function () {
             data: {'first_name': text},
             success: [
                 function () {
-                   showFirstName(text);
+                    showFirstName(text);
                 }
             ]
         });
@@ -99,7 +99,7 @@ $(document).ready(function () {
             data: {'last_name': text},
             success: [
                 function () {
-                   showLastName(text);
+                    showLastName(text);
                 }
             ]
         });
@@ -113,7 +113,7 @@ function showAddressToChange() {
 
     $("#address")
         .empty()
-        .append("<div class='form-group'><input type='text' class='form-control' id='contentAddress'/>")
+        .append("<div class='form-group'><input type='text' class='form-control' id='contentAddress' value='" + text + "'/>")
         .append("<a id='sendAddressAjax'><button class='btn btn-success'>Update</button></a></div>");
     document.getElementById('contentAddress').focus();
 }
@@ -125,7 +125,7 @@ function showAddress(text) {
     document.cookie = "address=" +toInsert;
     $("#address")
         .empty()
-        .append("<h4>Your address : <b id='ar'>" + toInsert + "</b>" +
+        .append("<h4>Your address : <b id='ar'>" + toInsert + "</b> " +
             "<a id='updateAddress'>" +
             "<button class='btn btn-success'><span class='glyphicon glyphicon-pencil' aria-hidden='true'></span>" +
             "</button>" +
@@ -138,7 +138,7 @@ function showFirstNameToChange() {
     document.cookie = "firstName=" + text;
     $("#first_name")
         .empty()
-        .append("<div class='form-group'><input type='text' class='form-control' id='contentFN'/>")
+        .append("<div class='form-group'><input type='text' class='form-control' id='contentFN' value='" + text + "'/>")
         .append("<a id='sendFirstNameAjax'><button class='btn btn-success'>Update</button></a></div>");
     document.getElementById('contentFN').focus();
 }
@@ -150,7 +150,7 @@ function showFirstName(text) {
     document.cookie = "firstName=" + toInsert;
     $("#first_name")
         .empty()
-        .append('<h4>Your first name: <b id="fn">' + toInsert + '</b>' +
+        .append('<h4>Your first name: <b id="fn">' + toInsert + '</b> ' +
             '<a id="updateFN">' +
             '<button class="btn btn-success"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>' +
             '</button>' +
@@ -163,7 +163,7 @@ function showLastNameToChange() {
     document.cookie = "lastName=" + text;
     $("#last_name")
         .empty()
-        .append("<div class='form-group'><input type='text' class='form-control' id='contentLN'/>")
+        .append("<div class='form-group'><input type='text' class='form-control' id='contentLN' value='" + text + "'/>")
         .append("<a id='sendLastNameAjax'><button class='btn btn-success'>Update</button></a></div>");
     document.getElementById('contentLN').focus();
 }
@@ -175,7 +175,7 @@ function showLastName(text) {
     document.cookie = "lastName=" + toInsert;
     $("#last_name")
         .empty()
-        .append("<h4>Your last name: <b id='ln'>" + toInsert + "</b>" +
+        .append("<h4>Your last name: <b id='ln'>" + toInsert + "</b> " +
             "<a id='updateLN'>" +
             "<button class='btn btn-success'><span class='glyphicon glyphicon-pencil' aria-hidden='true'></span>" +
             "</button>" +
