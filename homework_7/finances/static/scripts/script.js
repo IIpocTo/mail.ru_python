@@ -5,15 +5,15 @@ $(document).ready(function() {
     $("#updateAdress").click(function () {
         showAdressToChange();
     });
-    $("#sendAjax").click(function () {
-        sendAjax();
-    });
+    // $("#sendAjaxAddress").click(function () {
+    //     sendAjax();
+    // });
 });
 
 function showAdressToChange() {
     $("#address").empty();
-    $("#address").append("<input id='contentAddress'/>");
-    $("#address").append("<a id='sendAjax'><button>Update</button></a>");
+    $("#address").append("<form action='javascript:sendAjax();'><input id='contentAddress'/>");
+    $("#address").append(" <input type='submit'>Update</input></form>");
 }
 
 function sendAjax() {

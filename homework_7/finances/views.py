@@ -6,7 +6,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Extract
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
 from .calendar import get_month_name
@@ -18,6 +18,7 @@ class MainPageView(generic.TemplateView):
     template_name = 'index.html'
 
     def get(self, request, *args, **kwargs):
+        accounts = None
         if request.user.is_authenticated:
             accounts = Account.objects.filter(user=request.user)
         return render(request, self.template_name, {
@@ -102,10 +103,9 @@ class LogoutView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            accounts = Account.objects.filter(user=request.user)
             logout(request)
-            return render(request, self.template_name, {
-                "title": "Main page"
-            })
+            return redirect("finances:main")
         else:
             raise PermissionDenied
 
@@ -205,7 +205,6 @@ class AccountInsertView(generic.TemplateView):
             })
         else:
             raise PermissionDenied
-
 
 
 class AccountSearchView(generic.TemplateView):
