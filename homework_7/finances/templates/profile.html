@@ -4,22 +4,12 @@
     <h3>Hello, {{ request.user.username }}! Welcome to your profile page.</h3>
 {% endblock %}
 {% block content %}
-    <div clas="row">
     <div class="col-xs-6">
         <h4>Your username: <b>{{ request.user.username }}</b></h4>
         <h4>Your email: <b>{{ request.user.email }}</b></h4>
         <h4>Your telephone number: <b>{{ request.user.phone }}</b></h4>
         <div id="address"><h4>Your address: <b>{{ request.user.address }}</b>  <a id="updateAdress"><button>Change your address</button></a></h4></div>
-        <div class="container">
-            <h3>Your accounts</h3>
-            <ul>
-            {% for account in request.user.accounts.objects %}
-                <li>{{ account.number }}</li>
-            {% endfor %}
-            </ul>
-        </div>
     </div>
-    <div class="col-xs-6">
     {% bootstrap_messages %}
     <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
         <form method="post" action='{% url "finances:insert" %}'>
@@ -30,21 +20,11 @@
         </form>
     </div>
     <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <form method="post" action='{% url "finances:search" %}'>
-            <legend>Type your account number here</legend>
-            {% csrf_token %}
-            {% bootstrap_form form_look_for %}
-            {% buttons submit='Go to an account' %}{% endbuttons %}
-        </form>
-    </div>
-    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
         <form method="post" action='{% url "finances:update" %}'>
             <legend>Update information</legend>
             {% csrf_token %}
             {% bootstrap_form form_look_for %}
             {% buttons submit='Update information' %}{% endbuttons %}
         </form>
-    </div>
-    </div>
     </div>
 {% endblock %}

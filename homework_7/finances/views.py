@@ -18,8 +18,11 @@ class MainPageView(generic.TemplateView):
     template_name = 'index.html'
 
     def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            accounts = Account.objects.filter(user=request.user)
         return render(request, self.template_name, {
             "title": "Main Page",
+            "accounts": accounts
         })
 
 
@@ -150,12 +153,13 @@ class ProfileView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-
+            accounts = Account.objects.filter(user=request.user)
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": self.form_class,
                 "form_update": self.form_update_class,
-                "form_look_for": self.form_look_for_class
+                "form_look_for": self.form_look_for_class,
+                "accounts": accounts
             })
         else:
             raise PermissionDenied
@@ -168,34 +172,40 @@ class AccountInsertView(generic.TemplateView):
     form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        form_look_for = self.form_look_for_class
-        form_update = self.form_update_class
+        if request.user.is_authenticated:
+            accounts = Account.objects.filter(user=request.user)
+            form = self.form_class(request.POST)
+            form_look_for = self.form_look_for_class
+            form_update = self.form_update_class
 
-        if form.is_valid():
-            instance = form.save(commit=False)
-            instance.user = request.user
-            instance.save()
-            success_message = "Form successfully validated!"
-            info_message = "You created new Account(" \
-                           "number: " + str(request.POST.get('number')) \
-                           + ")"
+            if form.is_valid():
+                instance = form.save(commit=False)
+                instance.user = request.user
+                instance.save()
+                success_message = "Form successfully validated!"
+                info_message = "You created new Account(" \
+                               "number: " + str(request.POST.get('number')) \
+                               + ")"
 
-            messages.success(request, success_message)
-            messages.info(request, info_message)
+                messages.success(request, success_message)
+                messages.info(request, info_message)
+                return render(request, self.template_name, {
+                    "title": "Profile",
+                    "form": form,
+                    "form_update": form_update,
+                    "form_look_for": form_look_for,
+                    "accounts": accounts
+                })
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": form,
                 "form_update": form_update,
-                "form_look_for": form_look_for
+                "form_look_for": form_look_for,
+                "accounts": accounts
             })
+        else:
+            raise PermissionDenied
 
-        return render(request, self.template_name, {
-            "title": "Profile",
-            "form": form,
-            "form_update": form_update,
-            "form_look_for": form_look_for
-        })
 
 
 class AccountSearchView(generic.TemplateView):
@@ -205,19 +215,24 @@ class AccountSearchView(generic.TemplateView):
     form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
-        form_look_for = self.form_look_for_class(request.POST)
-        form = self.form_class
-        form_update = self.form_update_class
+        if request.user.is_authenticated:
+            accounts = Account.objects.filter(user=request.user)
+            form_look_for = self.form_look_for_class(request.POST)
+            form = self.form_class
+            form_update = self.form_update_class
 
-        if form_look_for.is_valid():
-            return HttpResponseRedirect(reverse('finances:account', args=[request.POST.get('number')]))
+            if form_look_for.is_valid():
+                return HttpResponseRedirect(reverse('finances:account', args=[request.POST.get('number')]))
 
-        return render(request, self.template_name, {
-            "title": "Profile",
-            "form": form,
-            "form_update": form_update,
-            "form_look_for": form_look_for
-        })
+            return render(request, self.template_name, {
+                "title": "Profile",
+                "form": form,
+                "form_update": form_update,
+                "form_look_for": form_look_for,
+                "accounts": accounts
+            })
+        else:
+            raise PermissionDenied
 
 
 class AccountView(generic.FormView):
@@ -226,6 +241,7 @@ class AccountView(generic.FormView):
     @transaction.atomic()
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
+            accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
                 deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
@@ -234,7 +250,8 @@ class AccountView(generic.FormView):
                     "title": "Account page",
                     "deposit": deposit,
                     "withdraw": withdraw,
-                    "account_number": account.number
+                    "account_number": account.number,
+                    "accounts": accounts
                 })
             else:
                 raise PermissionDenied
@@ -249,12 +266,14 @@ class AddChargeView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
+            accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
                 return render(request, self.template_name, {
                     "title": self.title_name,
                     "form": self.form_class,
-                    "account_number": number
+                    "account_number": number,
+                    "accounts":accounts
                 })
             else:
                 raise PermissionDenied
@@ -262,24 +281,29 @@ class AddChargeView(generic.FormView):
             raise PermissionDenied
 
     def post(self, request, number=None, *args, **kwargs):
-        get_object_or_404(Account, number=number)
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            instance.account_id = number
-            instance.save()
-            success_message = "Form successfully validated!"
-            info_message = "You created new Charge(" \
-                           "value: " + str(request.POST.get('value')) + \
-                           ", date: " + request.POST.get('date') + ")"
+        if request.user.is_authenticated:
+            accounts = Account.objects.filter(user=request.user)
+            get_object_or_404(Account, number=number)
+            form = self.form_class(request.POST)
+            if form.is_valid():
+                instance = form.save(commit=False)
+                instance.account_id = number
+                instance.save()
+                success_message = "Form successfully validated!"
+                info_message = "You created new Charge(" \
+                               "value: " + str(request.POST.get('value')) + \
+                               ", date: " + request.POST.get('date') + ")"
 
-            messages.success(request, success_message)
-            messages.info(request, info_message)
-        return render(request, self.template_name, {
-            "title": self.title_name,
-            "form": form,
-            "account_number": number
-        })
+                messages.success(request, success_message)
+                messages.info(request, info_message)
+            return render(request, self.template_name, {
+                "title": self.title_name,
+                "form": form,
+                "account_number": number,
+                "accounts": accounts
+            })
+        else:
+            raise PermissionDenied
 
 
 class AccountStatisticsView(generic.FormView):
@@ -303,6 +327,7 @@ class AccountStatisticsView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
+            accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
                 stats2 = (Charge.objects
@@ -318,7 +343,8 @@ class AccountStatisticsView(generic.FormView):
                 return render(request, self.template_name, {
                     "title": "Account Statistics",
                     "data": stats,
-                    "account_number": number
+                    "account_number": number,
+                    "accounts": accounts
                 })
             else:
                 raise PermissionDenied
