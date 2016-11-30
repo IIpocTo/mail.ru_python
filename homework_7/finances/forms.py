@@ -53,21 +53,6 @@ class LoginForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class AccountLookForForm(forms.Form):
-    number = forms.CharField(
-        max_length=12,
-        min_length=12
-    )
-
-    def clean(self):
-        cleaned_data = super().clean()
-        number = cleaned_data.get('number')
-        account = Account.objects.filter(number=number)
-        if account is None:
-            self.add_error("number", "There is no such account!")
-        return cleaned_data
-
-
 class ChargeForm(forms.ModelForm):
     class Meta:
         model = Charge

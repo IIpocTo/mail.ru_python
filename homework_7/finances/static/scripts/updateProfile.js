@@ -8,6 +8,8 @@ $(document).ready(function () {
         var csrftoken = getCookie('csrftoken');
         var text = $("#contentAddress").val();
         $.ajaxSetup({
+            url: "/update/",
+            type: "POST",
             beforeSend: function (xhr, settings) {
                 if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -15,8 +17,6 @@ $(document).ready(function () {
             }
         });
         $.ajax({
-            type: "POST",
-            url: "/update/",
             data: {'address': text},
             success: [
                 function () {

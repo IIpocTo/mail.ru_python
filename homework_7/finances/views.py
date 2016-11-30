@@ -8,9 +8,10 @@ from django.db.models.functions import Extract
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
+from django.views.decorators.csrf import csrf_protect
 
 from .calendar import get_month_name
-from .forms import ChargeForm, AccountForm, AccountLookForForm, RegisterForm, LoginForm, ProfileUpdateForm
+from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm
 from .models import Account, Charge, UserProfile
 
 
@@ -112,33 +113,9 @@ class LogoutView(generic.TemplateView):
 
 class ProfileUpdateView(generic.TemplateView):
     template_name = 'profile.html'
-    # form_update_class = ProfileUpdateForm
-    # form_class = AccountForm
-    # form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
         address = request.POST.get('address')
-        # form_update = self.form_update_class(request.POST)
-        # form = self.form_class
-        # form_look_for = self.form_look_for_class
-        #
-        # if form.is_valid():
-        #     u = UserProfile.objects.get(username__exact='john')
-        #     u.address = form.address
-        #     u.save()
-        #     return render(request, self.template_name, {
-        #         "title": "Profile",
-        #         "form": form,
-        #         "form_update": form_update,
-        #         "form_look_for": form_look_for
-        #     })
-        # else:
-        #     return render(request, self.template_name, {
-        #         "title": "Profile",
-        #         "form": form,
-        #         "form_update": form_update,
-        #         "form_look_for": form_look_for
-        #     })
         u = UserProfile.objects.get(username=request.user.username)
         u.address = address
         u.save()
@@ -149,7 +126,6 @@ class ProfileView(generic.TemplateView):
     template_name = 'profile.html'
     form_update_class = ProfileUpdateForm
     form_class = AccountForm
-    form_look_for_class = AccountLookForForm
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -158,7 +134,6 @@ class ProfileView(generic.TemplateView):
                 "title": "Profile",
                 "form": self.form_class,
                 "form_update": self.form_update_class,
-                "form_look_for": self.form_look_for_class,
                 "accounts": accounts
             })
         else:
@@ -169,13 +144,11 @@ class AccountInsertView(generic.TemplateView):
     template_name = 'profile.html'
     form_update_class = ProfileUpdateForm
     form_class = AccountForm
-    form_look_for_class = AccountLookForForm
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             accounts = Account.objects.filter(user=request.user)
             form = self.form_class(request.POST)
-            form_look_for = self.form_look_for_class
             form_update = self.form_update_class
 
             if form.is_valid():
@@ -193,41 +166,12 @@ class AccountInsertView(generic.TemplateView):
                     "title": "Profile",
                     "form": form,
                     "form_update": form_update,
-                    "form_look_for": form_look_for,
                     "accounts": accounts
                 })
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": form,
                 "form_update": form_update,
-                "form_look_for": form_look_for,
-                "accounts": accounts
-            })
-        else:
-            raise PermissionDenied
-
-
-class AccountSearchView(generic.TemplateView):
-    template_name = 'profile.html'
-    form_update_class = ProfileUpdateForm
-    form_class = AccountForm
-    form_look_for_class = AccountLookForForm
-
-    def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
-            form_look_for = self.form_look_for_class(request.POST)
-            form = self.form_class
-            form_update = self.form_update_class
-
-            if form_look_for.is_valid():
-                return HttpResponseRedirect(reverse('finances:account', args=[request.POST.get('number')]))
-
-            return render(request, self.template_name, {
-                "title": "Profile",
-                "form": form,
-                "form_update": form_update,
-                "form_look_for": form_look_for,
                 "accounts": accounts
             })
         else:
@@ -347,5 +291,42 @@ class AccountStatisticsView(generic.FormView):
                 })
             else:
                 raise PermissionDenied
+        else:
+            raise PermissionDenied
+
+
+class UserSearchView(generic.TemplateView):
+    template_name = "404.html"
+
+    def get(self, request, *args, **kwargs):
+        username = request.GET.get('username')
+        user_filter = UserProfile.objects.filter(username=username)
+        if user_filter.count() != 0:
+            return redirect(
+                "finances:public_profile", username=username
+            )
+        else:
+            return render(request, self.template_name, {
+                "title": "404 page"
+            })
+
+
+class PublicProfileView(generic.TemplateView):
+    template_name = "public_profile.html"
+
+    def get(self, request, username=None, *args, **kwargs):
+        if username is not None:
+            user_filter = UserProfile.objects.filter(username=username)
+            if user_filter.count() != 0:
+                public_user = user_filter.get()
+                return render(request, self.template_name, {
+                    "title": "Public profile",
+                    "user": public_user
+                })
+            else:
+                return render(request, "404.html", {
+                "title": "404 page"
+            })
+
         else:
             raise PermissionDenied
