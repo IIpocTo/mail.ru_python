@@ -12,6 +12,33 @@ $(document).ready(function () {
         showLastNameToChange();
     });
 
+    $(document).on("blur", "#contentAddress", function () {
+        if ($('#contentAddress').val() != "") {
+            setTimeout(showAddress, 1000);
+        }
+        else {
+            showAddress();
+        }
+    });
+
+    $(document).on("blur", "#contentFN", function () {
+        if ($('#contentFN').val() != "") {
+            setTimeout(showFirstName, 1000);
+        }
+        else {
+            showFirstName();
+        }
+    });
+
+    $(document).on("blur", "#contentLN", function () {
+        if ($('#contentLN').val() != "") {
+            setTimeout(showLastName,1000);
+        }
+        else {
+            showLastName();
+        }
+    });
+
     $(document).on("click", '#sendAddressAjax', function () {
         var csrftoken = getCookie('csrftoken');
         var text = $("#contentAddress").val();
@@ -28,16 +55,7 @@ $(document).ready(function () {
             data: {'address': text},
             success: [
                 function () {
-                    $("#address")
-                        .empty()
-                        .append('' +
-                            '<h4>Your address: <b>' + text + '</b>' +
-                            '   <a id="updateAddress">' +
-                            '       <button class="btn btn-success">' +
-                            '           <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>' +
-                            '       </button>' +
-                            '   </a>' +
-                            '</h4>');
+                    showAddress(text);
                 }
             ]
         });
@@ -59,16 +77,7 @@ $(document).ready(function () {
             data: {'first_name': text},
             success: [
                 function () {
-                    $("#first_name")
-                        .empty()
-                        .append('' +
-                            '<h4>Your first name: <b>' + text + '</b>' +
-                            '   <a id="updateFN">' +
-                            '       <button class="btn btn-success">' +
-                            '           <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>' +
-                            '       </button>' +
-                            '   </a>' +
-                            '</h4>');
+                   showFirstName(text);
                 }
             ]
         });
@@ -90,16 +99,7 @@ $(document).ready(function () {
             data: {'last_name': text},
             success: [
                 function () {
-                    $("#last_name")
-                        .empty()
-                        .append('' +
-                            '<h4>Your last name: <b>' + text + '</b>' +
-                            '   <a id="updateLN">' +
-                            '       <button class="btn btn-success">' +
-                            '           <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>' +
-                            '       </button>' +
-                            '   </a>' +
-                            '</h4>');
+                   showLastName(text);
                 }
             ]
         });
@@ -108,24 +108,79 @@ $(document).ready(function () {
 });
 
 function showAddressToChange() {
+    var text = document.getElementById('ar').innerText;
+    document.cookie = "address=" + text;
+
     $("#address")
         .empty()
-        .append("<input id='contentAddress'/>")
-        .append("<a id='sendAddressAjax'><button>Update</button></a>");
+        .append("<div class='form-group'><input type='text' class='form-control' id='contentAddress'/>")
+        .append("<a id='sendAddressAjax'><button class='btn btn-success'>Update</button></a></div>");
+    document.getElementById('contentAddress').focus();
+}
+
+function showAddress(text) {
+    var toInsert = null;
+    if (text == null) toInsert = getCookie('address');
+    else toInsert = text;
+    document.cookie = "address=" +toInsert;
+    $("#address")
+        .empty()
+        .append("<h4>Your address : <b id='ar'>" + toInsert + "</b>" +
+            "<a id='updateAddress'>" +
+            "<button class='btn btn-success'><span class='glyphicon glyphicon-pencil' aria-hidden='true'></span>" +
+            "</button>" +
+            "</a>" +
+            "</h4>");
 }
 
 function showFirstNameToChange() {
+    var text = document.getElementById('fn').innerText;
+    document.cookie = "firstName=" + text;
     $("#first_name")
         .empty()
-        .append("<input id='contentFN'/>")
-        .append("<a id='sendFirstNameAjax'><button>Update</button></a>");
+        .append("<div class='form-group'><input type='text' class='form-control' id='contentFN'/>")
+        .append("<a id='sendFirstNameAjax'><button class='btn btn-success'>Update</button></a></div>");
+    document.getElementById('contentFN').focus();
+}
+
+function showFirstName(text) {
+    var toInsert = null;
+    if (text == null) toInsert = getCookie('firstName');
+    else toInsert = text;
+    document.cookie = "firstName=" + toInsert;
+    $("#first_name")
+        .empty()
+        .append('<h4>Your first name: <b id="fn">' + toInsert + '</b>' +
+            '<a id="updateFN">' +
+            '<button class="btn btn-success"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>' +
+            '</button>' +
+            '</a>' +
+            '</h4>');
 }
 
 function showLastNameToChange() {
+    var text = document.getElementById('ln').innerText;
+    document.cookie = "lastName=" + text;
     $("#last_name")
         .empty()
-        .append("<input id='contentLN'/>")
-        .append("<a id='sendLastNameAjax'><button>Update</button></a>");
+        .append("<div class='form-group'><input type='text' class='form-control' id='contentLN'/>")
+        .append("<a id='sendLastNameAjax'><button class='btn btn-success'>Update</button></a></div>");
+    document.getElementById('contentLN').focus();
+}
+
+function showLastName(text) {
+    var toInsert = null;
+    if (text == null) toInsert = getCookie('lastName');
+    else toInsert = text;
+    document.cookie = "lastName=" + toInsert;
+    $("#last_name")
+        .empty()
+        .append("<h4>Your last name: <b id='ln'>" + toInsert + "</b>" +
+            "<a id='updateLN'>" +
+            "<button class='btn btn-success'><span class='glyphicon glyphicon-pencil' aria-hidden='true'></span>" +
+            "</button>" +
+            "</a>" +
+            "</h4>")
 }
 
 function getCookie(name) {
