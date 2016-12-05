@@ -12,31 +12,16 @@ $(document).ready(function () {
         showLastNameToChange();
     });
 
-    $(document).on("blur", "#contentAddress", function () {
-        if ($('#contentAddress').val() != "") {
-            setTimeout(showAddress, 1000);
-        }
-        else {
+    $(document).on("click", "#cancelAddress", function () {
             showAddress();
-        }
     });
 
-    $(document).on("blur", "#contentFN", function () {
-        if ($('#contentFN').val() != "") {
-            setTimeout(showFirstName, 1000);
-        }
-        else {
+    $(document).on("click", "#cancelFN", function () {
             showFirstName();
-        }
     });
 
-    $(document).on("blur", "#contentLN", function () {
-        if ($('#contentLN').val() != "") {
-            setTimeout(showLastName, 1000);
-        }
-        else {
+    $(document).on("click", "#cancelLN", function () {
             showLastName();
-        }
     });
 
     $(document).on("click", '#sendAddressAjax', function () {
@@ -56,6 +41,11 @@ $(document).ready(function () {
             success: [
                 function () {
                     showAddress(text);
+                }
+            ],
+            error: [
+                function () {
+                    alert("Your session is over.");
                 }
             ]
         });
@@ -79,6 +69,11 @@ $(document).ready(function () {
                 function () {
                     showFirstName(text);
                 }
+            ],
+            error: [
+                function () {
+                    alert("Your session is over.");
+                }
             ]
         });
     });
@@ -101,6 +96,11 @@ $(document).ready(function () {
                 function () {
                     showLastName(text);
                 }
+            ],
+            error: [
+                function () {
+                    alert("Your session is over.");
+                }
             ]
         });
     });
@@ -118,6 +118,9 @@ function showAddressToChange() {
             "   <a id='sendAddressAjax'>" +
             "       <button class='btn btn-success'>Update</button>" +
             "   </a>" +
+            "   <a id='cancelAddress'>" +
+            "       <button class='btn btn-warning'>Cancel</button>" +
+            "</a>" +
             "</div>"
         );
     $('#contentAddress').focus();
@@ -152,6 +155,9 @@ function showFirstNameToChange() {
             "   <a id='sendFirstNameAjax'>" +
             "       <button class='btn btn-success'>Update</button>" +
             "   </a>" +
+            "   <a id='cancelFN'>" +
+            "       <button class='btn btn-warning'>Cancel</button>" +
+            "</a>" +
             "</div>"
         );
     $('#contentFN').focus();
@@ -186,6 +192,9 @@ function showLastNameToChange() {
             "   <a id='sendLastNameAjax'>" +
             "       <button class='btn btn-success'>Update</button>" +
             "   </a>" +
+            "   <a id='cancelLN'>" +
+            "       <button class='btn btn-warning'>Cancel</button>" +
+            "</a>" +
             "</div>"
         );
     $('#contentLN').focus();

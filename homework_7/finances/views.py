@@ -8,6 +8,7 @@ from django.db.models.functions import Extract
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
+from time import time
 
 from .calendar import get_month_name
 from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm
@@ -20,6 +21,7 @@ class MainPageView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         accounts = None
         if request.user.is_authenticated:
+            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
         return render(request, self.template_name, {
             "title": "Main Page",
@@ -39,7 +41,6 @@ class RegisterView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-
         if form.is_valid():
             user_name = form.cleaned_data['username']
             UserProfile.objects.create_user(
@@ -77,13 +78,13 @@ class LoginView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
+                request.session.set_expiry(120)
                 return HttpResponseRedirect(reverse("finances:profile"))
             else:
                 messages.error(request, "Your login data is not valid")
@@ -113,20 +114,24 @@ class ProfileUpdateView(generic.TemplateView):
     template_name = 'profile.html'
 
     def post(self, request, *args, **kwargs):
-        u = UserProfile.objects.get(username=request.user.username)
-        address = request.POST.get('address')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        if address is not None:
-            u.address = address
-            u.save()
-        if first_name is not None:
-            u.first_name = first_name
-            u.save()
-        if last_name is not None:
-            u.last_name = last_name
-            u.save()
-        return HttpResponse("ok")
+        if request.user.is_authenticated:
+            request.session.set_expiry(120)
+            u = UserProfile.objects.get(username=request.user.username)
+            address = request.POST.get('address')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            if address is not None:
+                u.address = address
+                u.save()
+            if first_name is not None:
+                u.first_name = first_name
+                u.save()
+            if last_name is not None:
+                u.last_name = last_name
+                u.save()
+            return HttpResponse("ok")
+        else:
+            return HttpResponse(403)
 
 
 class ProfileView(generic.TemplateView):
@@ -136,6 +141,7 @@ class ProfileView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             return render(request, self.template_name, {
                 "title": "Profile",
@@ -144,7 +150,7 @@ class ProfileView(generic.TemplateView):
                 "accounts": accounts
             })
         else:
-            raise PermissionDenied
+            return redirect("finances:main")
 
 
 class AccountInsertView(generic.TemplateView):
@@ -154,6 +160,7 @@ class AccountInsertView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             form = self.form_class(request.POST)
             form_update = self.form_update_class
@@ -191,6 +198,7 @@ class AccountView(generic.FormView):
     @transaction.atomic()
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
+            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
@@ -216,6 +224,7 @@ class AddChargeView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
+            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
@@ -232,6 +241,7 @@ class AddChargeView(generic.FormView):
 
     def post(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
+            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             get_object_or_404(Account, number=number)
             form = self.form_class(request.POST)
@@ -277,6 +287,7 @@ class AccountStatisticsView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
+            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
@@ -335,6 +346,7 @@ class PublicProfileView(generic.TemplateView):
                 return render(request, "404.html", {
                     "title": "404 page"
                 })
-
         else:
-            raise PermissionDenied
+            return render(request, "404.html", {
+                "title": "404 page"
+            })
