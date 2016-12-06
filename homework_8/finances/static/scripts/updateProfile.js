@@ -13,15 +13,15 @@ $(document).ready(function () {
     });
 
     $(document).on("click", "#cancelAddress", function () {
-        showAddress();
+            showAddress();
     });
 
     $(document).on("click", "#cancelFN", function () {
-        showFirstName();
+            showFirstName();
     });
 
     $(document).on("click", "#cancelLN", function () {
-        showLastName();
+            showLastName();
     });
 
     $(document).on("click", '#sendAddressAjax', function () {
@@ -120,7 +120,7 @@ function showAddressToChange() {
             "   </a>" +
             "   <a id='cancelAddress'>" +
             "       <button class='btn btn-warning'>Cancel</button>" +
-            "</a>" +
+            "   </a>" +
             "</div>"
         );
     $('#contentAddress').focus();
@@ -157,7 +157,7 @@ function showFirstNameToChange() {
             "   </a>" +
             "   <a id='cancelFN'>" +
             "       <button class='btn btn-warning'>Cancel</button>" +
-            "</a>" +
+            "   </a>" +
             "</div>"
         );
     $('#contentFN').focus();
@@ -194,7 +194,7 @@ function showLastNameToChange() {
             "   </a>" +
             "   <a id='cancelLN'>" +
             "       <button class='btn btn-warning'>Cancel</button>" +
-            "</a>" +
+            "   </a>" +
             "</div>"
         );
     $('#contentLN').focus();

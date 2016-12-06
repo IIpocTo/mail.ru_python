@@ -8,7 +8,6 @@ from django.db.models.functions import Extract
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
-from time import time
 
 from .calendar import get_month_name
 from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm
@@ -21,7 +20,6 @@ class MainPageView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         accounts = None
         if request.user.is_authenticated:
-            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
         return render(request, self.template_name, {
             "title": "Main Page",
@@ -39,7 +37,7 @@ class RegisterView(generic.TemplateView):
             "form": self.form_class,
         })
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
             user_name = form.cleaned_data['username']
@@ -76,7 +74,7 @@ class LoginView(generic.TemplateView):
             "form": self.form_class,
         })
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
@@ -84,7 +82,6 @@ class LoginView(generic.TemplateView):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                request.session.set_expiry(120)
                 return HttpResponseRedirect(reverse("finances:profile"))
             else:
                 messages.error(request, "Your login data is not valid")
@@ -113,9 +110,9 @@ class LogoutView(generic.TemplateView):
 class ProfileUpdateView(generic.TemplateView):
     template_name = 'profile.html'
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request):
         if request.user.is_authenticated:
-            request.session.set_expiry(120)
             u = UserProfile.objects.get(username=request.user.username)
             address = request.POST.get('address')
             first_name = request.POST.get('first_name')
@@ -141,7 +138,6 @@ class ProfileView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             return render(request, self.template_name, {
                 "title": "Profile",
@@ -158,9 +154,8 @@ class AccountInsertView(generic.TemplateView):
     form_update_class = ProfileUpdateForm
     form_class = AccountForm
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         if request.user.is_authenticated:
-            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             form = self.form_class(request.POST)
             form_update = self.form_update_class
@@ -198,7 +193,6 @@ class AccountView(generic.FormView):
     @transaction.atomic()
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
@@ -224,7 +218,6 @@ class AddChargeView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
@@ -241,7 +234,6 @@ class AddChargeView(generic.FormView):
 
     def post(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             get_object_or_404(Account, number=number)
             form = self.form_class(request.POST)
@@ -287,7 +279,6 @@ class AccountStatisticsView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            request.session.set_expiry(120)
             accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
@@ -337,7 +328,6 @@ class PublicProfileView(generic.TemplateView):
             user_filter = UserProfile.objects.filter(username=username)
             if user_filter.count() != 0:
                 public_user = user_filter.get()
-                print(public_user.first_name)
                 return render(request, self.template_name, {
                     "title": "Public profile",
                     "user": public_user

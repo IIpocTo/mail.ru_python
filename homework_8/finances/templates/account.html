@@ -2,10 +2,16 @@
 {% load bootstrap3 %}
 {% block header %}
     <h1>{{ title }}</h1>
-    <a href='{% url 'finances:statistics' number=account_number %}'>Look at your statistics.</a><br/>
-    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+    <div id="left-align" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+        <a href='{% url 'finances:statistics' number=account_number %}'>
+            <button class="btn btn-primary">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i> Look at your statistics
+            </button>
+        </a>
         <a href='{% url 'finances:add_charge' number=account_number %}'>
-            <button class="btn btn-primary">Create new charge</button>
+            <button id="chargeBtn" class="btn btn-primary">
+                <i class="fa fa-pencil fa-fw" aria-hidden="true"></i> Create new charge
+            </button>
         </a>
     </div>
 {% endblock %}
@@ -14,14 +20,18 @@
         <table class="left"><caption><h2>Your deposit operations</h2></caption>
             {% for charge in deposit %}
                 <tr>
-                    <td>{{ charge.date }} -> {{ charge.value }}</td>
+                    <td>
+                        {{ charge.date }} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ charge.value }}
+                    </td>
                 </tr>
             {% endfor %}
         </table>
         <table class="right"><caption><h2>Your withdraw operations</h2></caption>
             {% for charge in withdraw %}
                 <tr>
-                    <td>{{ charge.date }} -> {{ charge.value }}</td>
+                    <td>
+                        {{ charge.date }} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ charge.value }}
+                    </td>
                 </tr>
             {% endfor %}
         </table>
