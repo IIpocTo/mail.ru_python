@@ -7,10 +7,10 @@
     {% bootstrap_messages %}
     <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
         <form method="post" action='{% url "finances:register" %}'>
-            <legend>Register</legend>
+            <legend>Enter your registration data here</legend>
             {% csrf_token %}
             {% bootstrap_form form %}
-            {% buttons submit='Register' %}{% endbuttons %}
+            {% bootstrap_button "Confirm" button_type="submit" button_class="btn-success" %}
         </form>
     </div>
 {% endblock %}

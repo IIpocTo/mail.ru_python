@@ -22,3 +22,11 @@ td:hover {
     float: right;
     width: 50%;
 }
+
+#left-align {
+    padding-left: 0;
+}
+
+#chargeBtn {
+    margin-left: 10px;
+}

@@ -36,13 +36,15 @@
             </h4>
         </div>
     </div>
-    {% bootstrap_messages %}
-    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <form method="post" action='{% url "finances:insert" %}'>
-            <legend>Create new Account</legend>
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            {% buttons submit='Create new account' %}{% endbuttons %}
-        </form>
+    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        {% bootstrap_messages %}
+        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+            <form method="post" action='{% url "finances:insert" %}'>
+                <legend>Create new Account</legend>
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                {% bootstrap_button "Submit" button_type="submit" button_class="btn-success" %}
+            </form>
+        </div>
     </div>
 {% endblock %}
