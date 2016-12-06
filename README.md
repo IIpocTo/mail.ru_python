@@ -31,4 +31,8 @@
         <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/homework_7">
             Домашнее задание №7: Взаимодействие с пользователем, безопасность веб-приложений</a>
     </li>
+    <li>
+        <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/homework_8">
+            Домашнее задание №8: Взаимодействие компонент, интеграция</a>
+    </li>
 </ul>
