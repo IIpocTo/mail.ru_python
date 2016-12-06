@@ -66,7 +66,7 @@ class ChargeForm(forms.ModelForm):
         value = cleaned_data.get('value')
         charge_date = cleaned_data.get('date')
 
-        if value is None or date is None:
+        if value is None or charge_date is None:
             return cleaned_data
         if value == Decimal(0):
             self.add_error("value", "Charge can't be a zero value")
