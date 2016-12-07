@@ -25,6 +25,7 @@ class ChargeListSerializer(ModelSerializer):
         model = Charge
         fields = [
             'id',
+            'account',
             'value',
             'date'
         ]
