@@ -1,9 +1,10 @@
 from django.conf.urls import url
 
-from .views import \
-    MainPageView, AccountView, AddChargeView, \
-    AccountInsertView, AccountStatisticsView, LoginView, RegisterView, \
+from .views import (
+    MainPageView, AccountView, AddChargeView,
+    AccountInsertView, AccountStatisticsView, LoginView, RegisterView,
     ProfileUpdateView, ProfileView, LogoutView, UserSearchView, PublicProfileView
+)
 
 urlpatterns = [
     url(r'^$', MainPageView.as_view(), name='main'),
