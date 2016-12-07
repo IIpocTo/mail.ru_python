@@ -38,8 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'finances',
     'session_security',
-    'bootstrap3',
-    'rest_framework'
+    'bootstrap3'
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -74,21 +73,6 @@ TEMPLATES = [
     },
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-    'DEFAULT_PARSER_CLASSES': [
-        'rest_framework.parsers.JSONParser',
-    ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-    ],
-}
-
 WSGI_APPLICATION = 'myfinance.wsgi.application'
 
 
@@ -98,7 +82,7 @@ WSGI_APPLICATION = 'myfinance.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mail_python_8',
+        'NAME': 'mail_python_7',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': '127.0.0.1',
