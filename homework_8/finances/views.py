@@ -8,10 +8,16 @@ from django.db.models.functions import Extract
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
+from rest_framework.generics import ListCreateAPIView
+from rest_framework.permissions import AllowAny
+from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .calendar import get_month_name
-from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm
+from .forms import ChargeForm, AccountForm, LoginForm, ProfileUpdateForm
 from .models import Account, Charge, UserProfile
+from .serializers import UserSerializer
 
 
 class MainPageView(generic.TemplateView):
@@ -27,41 +33,64 @@ class MainPageView(generic.TemplateView):
         })
 
 
-class RegisterView(generic.TemplateView):
+class UserList(ListCreateAPIView):
+        queryset = UserProfile.objects.all()
+        serializer_class = UserSerializer
+        permission_classes = [
+            AllowAny
+        ]
+
+
+class RegisterView(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
     template_name = 'register.html'
-    form_class = RegisterForm
+    permission_classes = [
+        AllowAny
+    ]
 
-    def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {
-            "title": "Register",
-            "form": self.form_class,
+    @staticmethod
+    def get(request):
+        serializer = UserSerializer()
+        return Response({
+            'serializer': serializer
         })
 
-    def post(self, request):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            user_name = form.cleaned_data['username']
-            UserProfile.objects.create_user(
-                username=user_name,
-                password=form.cleaned_data['password'],
-                email=form.cleaned_data['email'],
-                phone=form.cleaned_data['phone']
-            )
-            success_message = "You have been registered"
-            info_message = "You registered new User(" \
-                           "login: " + str(user_name) \
-                           + ")"
-            messages.success(request, success_message)
-            messages.info(request, info_message)
-
-            return render(request, self.template_name, {
-                "title": "Register",
-                "form": self.form_class
+    @staticmethod
+    def post(request):
+        serializer = UserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({
+                'serializer': serializer
             })
-        return render(request, self.template_name, {
-            "title": "Register",
-            "form": form
-        })
+        serializer.save()
+        return redirect('finances:profile')
+
+
+    # def post(self, request):
+    #     form = self.form_class(request.POST)
+    #     if form.is_valid():
+    #         user_name = form.cleaned_data['username']
+    #         UserProfile.objects.create_user(
+    #             username=user_name,
+    #             password=form.cleaned_data['password'],
+    #             email=form.cleaned_data['email'],
+    #             phone=form.cleaned_data['phone']
+    #         )
+    #         success_message = "You have been registered"
+    #         info_message = "You registered new User(" \
+    #                        "login: " + str(user_name) \
+    #                        + ")"
+    #         messages.success(request, success_message)
+    #         messages.info(request, info_message)
+    #
+    #         return render(request, self.template_name, {
+    #             "title": "Register",
+    #             "form": self.form_class
+    #         })
+    #     return render(request, self.template_name, {
+    #         "title": "Register",
+    #         "form": form
+    #     })
 
 
 class LoginView(generic.TemplateView):
