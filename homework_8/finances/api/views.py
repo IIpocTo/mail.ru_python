@@ -2,8 +2,10 @@ from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from .permissions import IsOwnerOrReadOnly
-from .serializers import AccountDetailSerializer, AccountListSerializer
-from ..models import Account
+from .serializers import (
+    AccountDetailSerializer, AccountListSerializer, ChargeListSerializer, ChargeDetailSerializer
+)
+from ..models import Account, Charge
 
 
 class AccountList(ListCreateAPIView):
@@ -24,3 +26,22 @@ class AccountDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = AccountDetailSerializer
     lookup_field = 'number'
     permission_classes = [IsOwnerOrReadOnly]
+
+
+class ChargeList(ListCreateAPIView):
+    queryset = Charge.objects.all()
+    serializer_class = ChargeListSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['account__user__username']
+
+    # def perform_create(self, serializer):
+    #     serializer.save(account=self.request.user__account)
+
+    def get_queryset(self):
+        return Charge.objects.filter(account__user=self.request.user)
+
+
+class ChargeDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Charge.objects.all()
+    serializer_class = ChargeDetailSerializer
+    lookup_field = 'id'

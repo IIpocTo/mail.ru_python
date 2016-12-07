@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from ..models import Account
+from ..models import Account, Charge
 
 
 class AccountListSerializer(ModelSerializer):
@@ -17,4 +17,24 @@ class AccountDetailSerializer(ModelSerializer):
         fields = [
             'user',
             'number'
+        ]
+
+
+class ChargeListSerializer(ModelSerializer):
+    class Meta:
+        model = Charge
+        fields = [
+            'id',
+            'value',
+            'date'
+        ]
+
+
+class ChargeDetailSerializer(ModelSerializer):
+    class Meta:
+        model = Charge
+        fields = [
+            'account',
+            'value',
+            'date'
         ]
