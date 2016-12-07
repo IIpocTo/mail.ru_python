@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'myfinance.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mail_python_7',
+        'NAME': 'mail_python_8',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': '127.0.0.1',
