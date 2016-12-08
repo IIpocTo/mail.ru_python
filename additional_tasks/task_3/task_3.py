@@ -1,6 +1,6 @@
 def fibonacci_generator(n=None):
 
-    if n <= 0:
+    if n is not None and n <= 0:
         raise ValueError("parameter 'n' must be positive")
 
     first = 0
@@ -15,17 +15,15 @@ def fibonacci_generator(n=None):
         counter = 3
         while counter <= n:
             result = first + second
-            first = second
-            second = result
+            first, second = second, result
             counter += 1
             yield result
     else:
         while True:
             result = first + second
-            first = second
-            second = result
+            first, second = second, result
             yield result
 
 
-for number in fibonacci_generator(54):
+for number in fibonacci_generator():
     print(number)
