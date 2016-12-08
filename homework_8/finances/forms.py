@@ -44,12 +44,15 @@ class LoginForm(forms.ModelForm):
     def clean(self):
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
-        user = UserProfile.objects.filter(username=username).get()
-        if user is None:
+        user_query = UserProfile.objects.filter(username=username)
+
+        if user_query.count() == 0:
             self.add_error("username", "There is no such user!")
         else:
+            user = user_query.get()
             if not user.check_password(password):
                 self.add_error("password", "Password is not correct!")
+
         return self.cleaned_data
 
 
@@ -66,7 +69,7 @@ class ChargeForm(forms.ModelForm):
         value = cleaned_data.get('value')
         charge_date = cleaned_data.get('date')
 
-        if value is None or date is None:
+        if value is None or charge_date is None:
             return cleaned_data
         if value == Decimal(0):
             self.add_error("value", "Charge can't be a zero value")

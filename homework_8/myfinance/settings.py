@@ -36,9 +36,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'finances',
     'session_security',
-    'bootstrap3'
+    'bootstrap3',
+    'rest_framework',
+    'finances'
 ]
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -139,4 +140,13 @@ SESSION_SECURITY_WARN_AFTER = 120
 BOOTSTRAP3 = {
     'theme_url': "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css",
     'set_placeholder': False
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }

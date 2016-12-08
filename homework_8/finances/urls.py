@@ -1,9 +1,10 @@
 from django.conf.urls import url
 
-from .views import \
-    MainPageView, AccountView, AddChargeView, \
-    AccountInsertView, AccountStatisticsView, LoginView, RegisterView, \
+from .views import (
+    MainPageView, AccountView, AddChargeView,
+    AccountInsertView, AccountStatisticsView, LoginView, RegisterView,
     ProfileUpdateView, ProfileView, LogoutView, UserSearchView, PublicProfileView
+)
 
 urlpatterns = [
     url(r'^$', MainPageView.as_view(), name='main'),
@@ -16,6 +17,6 @@ urlpatterns = [
     url(r'^logout/$', LogoutView.as_view(), name="logout"),
     url(r'^profile/$', ProfileView.as_view(), name="profile"),
     url(r'^update/$', ProfileUpdateView.as_view(), name="update"),
-    url(r'^usersearch/$', UserSearchView.as_view(), name="usersearch"),
+    url(r'^user_search/$', UserSearchView.as_view(), name="user_search"),
     url(r'^users/(?P<username>[\w.@+-]+)/$', PublicProfileView.as_view(), name='public_profile')
 ]

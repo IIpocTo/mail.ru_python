@@ -27,11 +27,7 @@ class Account(models.Model):
     def __str__(self):
         return str(self.number)
 
-    @staticmethod
-    def get_absolute_url():
-        return reverse("finances:main")
-
-    def get_url(self):
+    def get_absolute_url(self):
         return reverse('finances:account', args=[str(self.number)])
 
 
