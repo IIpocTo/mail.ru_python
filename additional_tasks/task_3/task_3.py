@@ -1,5 +1,4 @@
 def fibonacci_generator(n=None):
-
     if n is not None and n <= 0:
         raise ValueError("parameter 'n' must be positive")
 
@@ -24,6 +23,6 @@ def fibonacci_generator(n=None):
             first, second = second, result
             yield result
 
-
-for number in fibonacci_generator():
-    print(number)
+if __name__ == "__main__":
+    for number in fibonacci_generator():
+        print(number)
