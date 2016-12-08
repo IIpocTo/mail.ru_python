@@ -2,16 +2,24 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.db import transaction
-from django.db.models import Sum
-from django.db.models.functions import Extract
-from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 from django.contrib.auth.models import User
 
 from .forms import RegisterForm, LoginForm
-from .models import Account, Charge
+from .models import Account
+
+
+def is_owner(f):
+    def wrapper(self, request, *args, **kwargs):
+        pk = kwargs["pk"]
+        account = get_object_or_404(Account.objects.filter(id=pk))
+        if account.owner == request.user.id:
+            return f(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+
+    return wrapper
 
 
 class MainPageView(generic.TemplateView):
@@ -105,16 +113,14 @@ class LogoutView(generic.TemplateView):
 class AccountAmountView(generic.TemplateView):
     template_name = 'account.html'
 
-    def get(self, request, fk=None, *args, **kwargs):
+    @is_owner
+    def get(self, request, pk=None, *args, **kwargs):
         if request.user.is_authenticated:
-            account = get_object_or_404(Account.objects.all().filter(id=fk))
-            if account.owner == request.user:
-                return render(request, self.template_name, {
-                    "title": "Account Amount",
-                    "account": account
-                })
-            else:
-                raise PermissionDenied
-
-
+            account = get_object_or_404(Account.objects.all().filter(id=pk))
+            return render(request, self.template_name, {
+                "title": "Account Amount",
+                "account": account
+            })
+        else:
+            raise PermissionDenied
 
