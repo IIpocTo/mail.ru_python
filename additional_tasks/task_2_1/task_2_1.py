@@ -8,9 +8,9 @@ def slow_log(param):
         def wrapper(*args, **kwargs):
             start = time()
             res = f(*args, **kwargs)
-            cont = time() - start
-            if cont > param:
-                print("The program has been executing for " + str(cont) + " seconds,")
+            func_exec_time = time() - start
+            if func_exec_time > param:
+                print("The program has been executing for " + str(func_exec_time) + " seconds,")
             return res
         return wrapper
     return decorator

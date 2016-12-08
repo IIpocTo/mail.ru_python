@@ -16,7 +16,7 @@ def quicksort(list_in):
     first_elem = list_in.pop(0)
     if len(list_in) == 0:
         return [first_elem]
-    new_list = list()
+    new_list = []
     list_min = list(filter(lambda x: x < first_elem, list_in))
     new_list.extend(quicksort(list_min))
     eq_num = len(list(filter(lambda x: x == first_elem, list_in)))
