@@ -36,7 +36,7 @@
             Домашнее задание №8: Взаимодействие компонент, интеграция</a>
     </li>
     <li>
-        <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/homework_8">
+        <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/additional_tasks">
             Дополнительные задачи</a>
     </li>
 </ul>
