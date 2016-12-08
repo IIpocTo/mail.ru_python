@@ -13,14 +13,7 @@ from .models import Account
 def is_owner(f):
     def wrapper(self, request, *args, **kwargs):
         pk = kwargs["pk"]
-        accounts = Account.objects.filter(id=pk)
-        account = None
-        if accounts.count() == 1:
-            account = accounts.get()
-        else:
-            return render(request, self.template_name, {
-                "title": "404 page"
-            })
+        account = get_object_or_404(Account.objects.filter(id=pk))
         if account.owner == request.user.id:
             return f(request, *args, **kwargs)
         else:
