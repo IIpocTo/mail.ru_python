@@ -1,0 +1,10 @@
+{% extends "template.html" %}
+{% load bootstrap3 %}
+{% block header %}
+    <h1>{{ title }}</h1>
+{% endblock %}
+{% block content %}
+    <div>
+        <p>The amount of your account is: {{ account.amount }} rubles</p>
+    </div>
+{% endblock %}
