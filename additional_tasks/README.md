@@ -14,16 +14,17 @@
         
      <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/additional_tasks/task_1">Решение</a>
         
-  2.
+  2. Разделяется на две подзадачи:
      
-     * Задана процедура, выполнение которой занимает некоторое время.
+     1. Задана процедура, выполнение которой занимает некоторое время.
      
          ```python
-        from time import sleep
-        from random import randint
-             
-        def f(message):
-            delay = randint(1, 10)
+         from time import sleep
+         from random import randint
+
+         def f(message):
+             delay = randint(1, 10)
+                
          ```
      
          Необходимо реализовать декоратор с параметром, где
@@ -33,7 +34,7 @@
      
         <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/additional_tasks/task_2_1">Решение</a> 
      
-     * В приложении Django задана модель **Account**, содержащая поля:
+     2. В приложении Django задана модель **Account**, содержащая поля:
            
          - **id** (алиас **pk**) - целочисленный идентификатор счета;
          - **number** - номер счета;
