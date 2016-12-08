@@ -13,7 +13,14 @@ from .models import Account
 def is_owner(f):
     def wrapper(self, request, *args, **kwargs):
         pk = kwargs["pk"]
-        account = get_object_or_404(Account.objects.filter(id=pk))
+        accounts = Account.objects.filter(id=pk)
+        account = None
+        if accounts.count() == 1:
+            account = accounts.get()
+        else:
+            return render(request, self.template_name, {
+                "title": "404 page"
+            })
         if account.owner == request.user.id:
             return f(request, *args, **kwargs)
         else:
@@ -116,7 +123,7 @@ class AccountAmountView(generic.TemplateView):
     @is_owner
     def get(self, request, pk=None, *args, **kwargs):
         if request.user.is_authenticated:
-            account = get_object_or_404(Account.objects.all().filter(id=pk))
+            account = Account.objects.get(id=pk)
             return render(request, self.template_name, {
                 "title": "Account Amount",
                 "account": account
