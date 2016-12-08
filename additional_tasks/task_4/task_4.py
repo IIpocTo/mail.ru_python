@@ -7,7 +7,7 @@ class Point:
         self._y = y
 
     def __str__(self):
-        return "x: " + str(self._x) + ", y: " + str(self._y)
+        return "Point(x: " + str(self._x) + ", y: " + str(self._y) + ")"
 
     def get_x(self):
         return self._x

@@ -3,7 +3,7 @@ from time import time
 from random import randint
 
 
-def constrained(param):
+def slow_log(param):
     def decorator(f):
         def wrapper(*args, **kwargs):
             start = time()
@@ -16,7 +16,7 @@ def constrained(param):
     return decorator
 
 
-@constrained(8)
+@slow_log(8)
 def f(message):
     delay = randint(1, 10)
     sleep(delay)
