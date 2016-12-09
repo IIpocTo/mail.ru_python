@@ -18,11 +18,11 @@ class AccountList(ListCreateAPIView):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        if self.request.query_params is None:
-            return Account.objects.filter(user=self.request.user)
-        else:
+        if self.request.query_params.get('search', None) is not None:
             user = self.request.query_params.get('search', None)
             return Account.objects.filter(user__username=user)
+        else:
+            return Account.objects.filter(user=self.request.user)
 
 
 class AccountDetail(RetrieveUpdateDestroyAPIView):
