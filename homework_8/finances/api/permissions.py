@@ -11,3 +11,8 @@ class IsAccountOwnerOrReadOnly(BasePermission):
 class IsChargeOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.account.user == request.user
+
+
+class IsHimself(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.id == request.user.id

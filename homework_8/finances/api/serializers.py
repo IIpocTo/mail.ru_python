@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from ..models import Account, Charge
+from ..models import Account, Charge, UserProfile
 
 
 class AccountListSerializer(ModelSerializer):
@@ -38,4 +38,27 @@ class ChargeDetailSerializer(ModelSerializer):
             'account',
             'value',
             'date'
+        ]
+
+
+class UserListSerializer(ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'address',
+            'phone',
+        ]
+
+
+class UserDetailSerializer(ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'first_name',
+            'last_name',
+            'address',
         ]

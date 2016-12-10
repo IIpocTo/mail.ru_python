@@ -13,15 +13,15 @@ $(document).ready(function () {
     });
 
     $(document).on("click", "#cancelAddress", function () {
-            showAddress();
+        showAddress();
     });
 
     $(document).on("click", "#cancelFN", function () {
-            showFirstName();
+        showFirstName();
     });
 
     $(document).on("click", "#cancelLN", function () {
-            showLastName();
+        showLastName();
     });
 
     $(document).on("click", '#sendAddressAjax', function () {

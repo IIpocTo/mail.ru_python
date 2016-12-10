@@ -145,10 +145,14 @@ class ProfileView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            get = requests.get("http://localhost:8000" + reverse("api:user_list"), headers=headers)
+            user = json.loads(get.content.decode())[0]
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": self.form_class,
-                "form_update": self.form_update_class
+                "form_update": self.form_update_class,
+                "user": user
             })
         else:
             return redirect("finances:main")
@@ -169,9 +173,9 @@ class AccountInsertView(generic.TemplateView):
                 number = form.cleaned_data['number']
                 headers = {'Authorization': 'JWT ' + request.session["token"]}
                 data = {'number': number}
-                response_post = requests.post("http://localhost:8000/api/accounts/", headers=headers, data=data)
+                post = requests.post("http://localhost:8000" + reverse("api:account_list"), headers=headers, data=data)
 
-                if response_post.status_code != 201:
+                if post.status_code != 201:
                     raise PermissionDenied
 
                 success_message = "Form successfully validated!"
@@ -196,17 +200,28 @@ class AccountView(generic.FormView):
     @transaction.atomic()
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
-                deposit = Charge.objects.filter(account=account, value__gt=0.0).order_by('date')
-                withdraw = Charge.objects.filter(account=account, value__lt=0.0).order_by('date')
+                headers = {'Authorization': 'JWT ' + request.session["token"]}
+                get = requests.get(
+                    "http://localhost:8000" + reverse("api:charge_list") + "?search=" + str(account.number),
+                    headers=headers
+                )
+                all_account_charges = json.loads(get.content.decode())
+                deposit = []
+                withdraw = []
+                for charge in all_account_charges:
+                    if float(charge.get('value')) > 0.0:
+                        deposit.append(charge)
+                    else:
+                        withdraw.append(charge)
+                deposit.sort(key=lambda x: x['date'])
+                withdraw.sort(key=lambda x: x['date'])
                 return render(request, self.template_name, {
                     "title": "Account page",
                     "deposit": deposit,
                     "withdraw": withdraw,
-                    "account_number": account.number,
-                    "accounts": accounts
+                    "account_number": account.number
                 })
             else:
                 raise PermissionDenied

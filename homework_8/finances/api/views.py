@@ -1,11 +1,14 @@
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-
-from .permissions import IsAccountOwnerOrReadOnly, IsChargeOwner
-from .serializers import (
-    AccountDetailSerializer, AccountListSerializer, ChargeListSerializer, ChargeDetailSerializer
+from rest_framework.generics import (
+    ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 )
-from ..models import Account, Charge
+
+from .permissions import IsAccountOwnerOrReadOnly, IsChargeOwner, IsHimself
+from .serializers import (
+    AccountDetailSerializer, AccountListSerializer, ChargeListSerializer, ChargeDetailSerializer,
+    UserListSerializer, UserDetailSerializer
+)
+from ..models import Account, Charge, UserProfile
 
 
 class AccountList(ListCreateAPIView):
@@ -59,3 +62,24 @@ class StatisticsList(ListAPIView):
 
     def get_queryset(self):
         return Account.objects.filter(user=self.request.user)
+
+
+class UserList(ListAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserListSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['username']
+
+    def get_queryset(self):
+        if len(self.request.query_params) == 0:
+            return UserProfile.objects.filter(username=self.request.user)
+        elif self.request.query_params.get('search', None) is not None:
+            user = self.request.query_params.get('search', None)
+            return Account.objects.filter(username=user)
+
+
+class UserDetail(UpdateAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserDetailSerializer
+    lookup_field = 'username'
+    permission_classes = [IsHimself]
