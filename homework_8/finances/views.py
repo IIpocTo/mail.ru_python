@@ -198,31 +198,38 @@ class AccountView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            account = get_object_or_404(Account, number=number)
-            if account.user == request.user:
-                headers = {'Authorization': 'JWT ' + request.session["token"]}
-                get = requests.get(
-                    "http://localhost:8000" + reverse("api:charge_list") + "?search=" + str(account.number),
-                    headers=headers
-                )
-                all_account_charges = json.loads(get.content.decode())
-                deposit = []
-                withdraw = []
-                for charge in all_account_charges:
-                    if float(charge.get('value')) > 0.0:
-                        deposit.append(charge)
-                    else:
-                        withdraw.append(charge)
-                deposit.sort(key=lambda x: x['date'])
-                withdraw.sort(key=lambda x: x['date'])
-                return render(request, self.template_name, {
-                    "title": "Account page",
-                    "deposit": deposit,
-                    "withdraw": withdraw,
-                    "account_number": account.number
-                })
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            get_account = requests.get(
+                "http://localhost:8000" + reverse("api:account_detail", kwargs={'number': number}),
+                headers=headers
+            )
+            if get_account.status_code == 200:
+                account = json.loads(get_account.content.decode())
+                if account.get('user') == request.user.id:
+                    get_charges = requests.get(
+                        "http://localhost:8000" + reverse("api:charge_list") + "?search=" + number,
+                        headers=headers
+                    )
+                    all_account_charges = json.loads(get_charges.content.decode())
+                    deposit = []
+                    withdraw = []
+                    for charge in all_account_charges:
+                        if float(charge.get('value')) > 0.0:
+                            deposit.append(charge)
+                        else:
+                            withdraw.append(charge)
+                    deposit.sort(key=lambda x: x['date'])
+                    withdraw.sort(key=lambda x: x['date'])
+                    return render(request, self.template_name, {
+                        "title": "Account page",
+                        "deposit": deposit,
+                        "withdraw": withdraw,
+                        "account_number": number
+                    })
+                else:
+                    raise PermissionDenied
             else:
-                raise PermissionDenied
+                return render(request, '404.html')
         else:
             raise PermissionDenied
 
@@ -234,29 +241,35 @@ class AddChargeView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            account = get_object_or_404(Account, number=number)
-            if account.user == request.user:
-                return render(request, self.template_name, {
-                    "title": self.title_name,
-                    "form": self.form_class,
-                    "account_number": number
-                })
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            get_account = requests.get(
+                "http://localhost:8000" + reverse("api:account_detail", kwargs={'number': number}),
+                headers=headers
+            )
+            if get_account.status_code == 200:
+                account = json.loads(get_account.content.decode())
+                if account.get('user') == request.user.id:
+                    return render(request, self.template_name, {
+                        "title": self.title_name,
+                        "form": self.form_class,
+                        "account_number": number
+                    })
+                else:
+                    raise PermissionDenied
             else:
-                raise PermissionDenied
+                return render(request, '404.html')
         else:
             raise PermissionDenied
 
     def post(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            get_object_or_404(Account, number=number)
             form = self.form_class(request.POST)
             if form.is_valid():
-                account = get_object_or_404(Account, number=number)
                 headers = {'Authorization': 'JWT ' + request.session["token"]}
                 data = {
                     'value': form.cleaned_data['value'],
                     'date': form.cleaned_data['date'],
-                    'account': account
+                    'account': number
                 }
                 post = requests.post("http://localhost:8000" + reverse("api:charge_list"), headers=headers, data=data)
 
