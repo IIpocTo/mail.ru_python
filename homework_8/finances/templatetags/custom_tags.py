@@ -10,9 +10,5 @@ register = template.Library()
 def show_accounts(request):
     headers = {'Authorization': 'JWT ' + request.session["token"]}
     response = requests.get("http://localhost:8000/api/accounts/", headers=headers)
-    account_json = json.loads(response.content.decode())
-    accounts_list = []
-    for elem in account_json:
-        accounts_list.append(list(elem.values()))
-    accounts = sum(accounts_list, [])
+    accounts = json.loads(response.content.decode())
     return {'accounts': accounts}

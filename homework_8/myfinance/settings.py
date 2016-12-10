@@ -135,8 +135,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_SECURITY_EXPIRE_AFTER = 180
-SESSION_SECURITY_WARN_AFTER = 120
+SESSION_SECURITY_EXPIRE_AFTER = 1800
+SESSION_SECURITY_WARN_AFTER = 1500
 
 BOOTSTRAP3 = {
     'theme_url': "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css",

@@ -7,7 +7,7 @@
         </a>
         <ul class="dropdown-menu">
             {% for acc in accounts %}
-                <li><a href="{% url 'finances:account' number=acc %}">{{ acc }}</a></li>
+                <li><a href="{% url 'finances:account' number=acc.number %}">{{ acc.number }}</a></li>
             {% endfor %}
         </ul>
     </li>

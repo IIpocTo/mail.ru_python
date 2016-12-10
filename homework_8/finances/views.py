@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import Extract
 from django.http import HttpResponse
@@ -197,7 +196,6 @@ class AccountInsertView(generic.TemplateView):
 class AccountView(generic.FormView):
     template_name = "account.html"
 
-    @transaction.atomic()
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
             account = get_object_or_404(Account, number=number)
@@ -236,14 +234,12 @@ class AddChargeView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
                 return render(request, self.template_name, {
                     "title": self.title_name,
                     "form": self.form_class,
-                    "account_number": number,
-                    "accounts": accounts
+                    "account_number": number
                 })
             else:
                 raise PermissionDenied
@@ -252,13 +248,21 @@ class AddChargeView(generic.FormView):
 
     def post(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
             get_object_or_404(Account, number=number)
             form = self.form_class(request.POST)
             if form.is_valid():
-                instance = form.save(commit=False)
-                instance.account_id = number
-                instance.save()
+                account = get_object_or_404(Account, number=number)
+                headers = {'Authorization': 'JWT ' + request.session["token"]}
+                data = {
+                    'value': form.cleaned_data['value'],
+                    'date': form.cleaned_data['date'],
+                    'account': account
+                }
+                post = requests.post("http://localhost:8000" + reverse("api:charge_list"), headers=headers, data=data)
+
+                if post.status_code != 201:
+                    raise PermissionDenied
+
                 success_message = "Form successfully validated!"
                 info_message = "You created new Charge(" \
                                "value: " + str(request.POST.get('value')) + \
@@ -269,8 +273,7 @@ class AddChargeView(generic.FormView):
             return render(request, self.template_name, {
                 "title": self.title_name,
                 "form": form,
-                "account_number": number,
-                "accounts": accounts
+                "account_number": number
             })
         else:
             raise PermissionDenied
