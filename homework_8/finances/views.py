@@ -1,3 +1,6 @@
+import json
+
+import requests
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
@@ -82,6 +85,10 @@ class LoginView(generic.TemplateView):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
+                userdata = {'username': username, 'password': password}
+                response = requests.post("http://localhost:8000/api-token-auth/", data=userdata)
+                obj = json.loads(response.content.decode())
+                request.session["token"] = obj["token"]
                 return redirect(reverse("finances:profile"))
             else:
                 messages.error(request, "Your login data is not valid")
@@ -138,12 +145,10 @@ class ProfileView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": self.form_class,
-                "form_update": self.form_update_class,
-                "accounts": accounts
+                "form_update": self.form_update_class
             })
         else:
             return redirect("finances:main")
@@ -156,32 +161,30 @@ class AccountInsertView(generic.TemplateView):
 
     def post(self, request):
         if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
             form = self.form_class(request.POST)
             form_update = self.form_update_class
 
             if form.is_valid():
-                instance = form.save(commit=False)
-                instance.user = request.user
-                instance.save()
+
+                number = form.cleaned_data['number']
+                headers = {'Authorization': 'JWT ' + request.session["token"]}
+                data = {'number': number}
+                response_post = requests.post("http://localhost:8000/api/accounts/", headers=headers, data=data)
+
+                if response_post.status_code != 201:
+                    raise PermissionDenied
+
                 success_message = "Form successfully validated!"
                 info_message = "You created new Account(" \
                                "number: " + str(request.POST.get('number')) \
                                + ")"
-
                 messages.success(request, success_message)
                 messages.info(request, info_message)
-                return render(request, self.template_name, {
-                    "title": "Profile",
-                    "form": form,
-                    "form_update": form_update,
-                    "accounts": accounts
-                })
+
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": form,
-                "form_update": form_update,
-                "accounts": accounts
+                "form_update": form_update
             })
         else:
             raise PermissionDenied
