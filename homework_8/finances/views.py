@@ -20,12 +20,8 @@ class MainPageView(generic.TemplateView):
     template_name = 'index.html'
 
     def get(self, request, *args, **kwargs):
-        accounts = None
-        if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
         return render(request, self.template_name, {
-            "title": "Main Page",
-            "accounts": accounts
+            "title": "Main Page"
         })
 
 
