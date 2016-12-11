@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import generic
 
@@ -113,9 +112,6 @@ class ProfileView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            headers = {'Authorization': 'JWT ' + request.session["token"]}
-            get = requests.get("http://localhost:8000" + reverse("api:user_list"), headers=headers)
-            user = json.loads(get.content.decode())[0]
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": self.form_class,
@@ -123,14 +119,19 @@ class ProfileView(generic.TemplateView):
         else:
             return redirect("finances:main")
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request):
         if request.user.is_authenticated:
             address = request.POST.get('address')
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             headers = {'Authorization': 'JWT ' + request.session["token"]}
             data = {'address': address, 'first_name': first_name, 'last_name': last_name}
-            put = requests.put("http://localhost:8000" + reverse("api:user_detail", args={request.user.username}), data=data, headers=headers)
+            put = requests.put(
+                "http://localhost:8000" + reverse("api:user_detail", args={request.user.username}),
+                data=data,
+                headers=headers
+            )
             if put.status_code != 200:
                 error_message = "Update have not been succeeded"
                 messages.error(request, error_message)
