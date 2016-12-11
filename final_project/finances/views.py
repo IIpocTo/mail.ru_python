@@ -1,5 +1,3 @@
-import json
-
 import requests
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -79,7 +77,7 @@ class LoginView(generic.TemplateView):
                 login(request, user)
                 userdata = {'username': username, 'password': password}
                 response = requests.post("http://localhost:8000/api-token-auth/", data=userdata)
-                obj = json.loads(response.content.decode())
+                obj = response.json()
                 request.session["token"] = obj["token"]
                 return redirect(reverse("finances:profile"))
             else:
@@ -188,13 +186,13 @@ class AccountView(generic.FormView):
                 headers=headers
             )
             if get_account.status_code == 200:
-                account = json.loads(get_account.content.decode())
+                account = get_account.json()
                 if account.get('user') == request.user.id:
                     get_charges = requests.get(
                         "http://localhost:8000" + reverse("api:charge_list") + "?search=" + number,
                         headers=headers
                     )
-                    all_account_charges = json.loads(get_charges.content.decode())
+                    all_account_charges = get_charges.json()
                     deposit = []
                     withdraw = []
                     for charge in all_account_charges:
@@ -231,7 +229,7 @@ class AddChargeView(generic.FormView):
                 headers=headers
             )
             if get_account.status_code == 200:
-                account = json.loads(get_account.content.decode())
+                account = get_account.json()
                 if account.get('user') == request.user.id:
                     return render(request, self.template_name, {
                         "title": self.title_name,
@@ -303,14 +301,14 @@ class AccountStatisticsView(generic.FormView):
                 headers=headers
             )
             if get_account.status_code == 200:
-                account = json.loads(get_account.content.decode())
+                account = get_account.json()
                 if account.get('user') == request.user.id:
                     headers = {'Authorization': 'JWT ' + request.session["token"]}
                     get_statistic = requests.get(
                         "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
                         headers=headers
                     )
-                    raw_stats = json.loads(get_statistic.content.decode())
+                    raw_stats = get_statistic.json()
                     stats = self.transform_data(list(raw_stats))
                     return render(request, self.template_name, {
                         "title": "Account Statistics",
@@ -332,7 +330,7 @@ class UserSearchView(generic.TemplateView):
             "http://localhost:8000" + reverse("api:user_list") + "?search=" + request.GET.get('username'),
             headers=headers
         )
-        user = json.loads(get_user.content.decode())
+        user = get_user.json()
         if len(user) == 1:
             return redirect("finances:public_profile", username=user[0].get('username'))
         else:
@@ -349,7 +347,7 @@ class PublicProfileView(generic.TemplateView):
                 "http://localhost:8000" + reverse("api:user_list") + "?search=" + username,
                 headers=headers
             )
-            user = json.loads(get_user.content.decode())
+            user = get_user.json()
             if len(user) == 1:
                 return render(request, self.template_name, {
                     "title": "Public profile",
