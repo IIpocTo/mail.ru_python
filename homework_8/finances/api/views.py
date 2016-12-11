@@ -10,8 +10,8 @@ from rest_framework.views import APIView
 from .permissions import IsAccountOwnerOrReadOnly, IsChargeOwner, IsHimself
 from .serializers import (
     AccountDetailSerializer, AccountListSerializer, ChargeListSerializer, ChargeDetailSerializer,
-    UserListSerializer, UserDetailSerializer
-)
+    UserListSerializer, UserDetailSerializer,
+    StatisticSerializer)
 from ..models import Account, Charge, UserProfile
 
 
@@ -57,8 +57,7 @@ class ChargeDetail(RetrieveUpdateDestroyAPIView):
 
 
 class StatisticsList(APIView):
-    queryset = Charge.objects.all()
-    serializer_class = AccountListSerializer
+    serializer_class = StatisticSerializer
     lookup_field = 'number'
 
     @staticmethod

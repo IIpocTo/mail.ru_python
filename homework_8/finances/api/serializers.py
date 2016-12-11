@@ -1,4 +1,5 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.fields import DecimalField, IntegerField
+from rest_framework.serializers import ModelSerializer, Serializer
 
 from ..models import Account, Charge, UserProfile
 
@@ -63,11 +64,13 @@ class UserDetailSerializer(ModelSerializer):
         ]
 
 
-class StatisticSerializer(ModelSerializer):
-    class Meta:
-        model = Charge
-        fields = [
-            'year',
-            'month',
-            'total',
-        ]
+class StatisticSerializer(Serializer):
+    year = IntegerField()
+    month = IntegerField()
+    total = DecimalField(max_digits=10, decimal_places=2)
+
+    def create(self, validated_data):
+        super().create(self)
+
+    def update(self, instance, validated_data):
+        super().update(self, instance)
