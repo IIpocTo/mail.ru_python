@@ -61,7 +61,8 @@ class StatisticsList(APIView):
     serializer_class = AccountListSerializer
     lookup_field = 'number'
 
-    def get(self, request, number=None, *args, **kwargs):
+    @staticmethod
+    def get(request, number=None):
         content = Charge.objects\
             .filter(account_id=number)\
             .annotate(month=Extract('date', 'month'))\
@@ -83,8 +84,8 @@ class UserList(ListAPIView):
         if len(self.request.query_params) == 0:
             return UserProfile.objects.filter(username=self.request.user)
         elif self.request.query_params.get('search', None) is not None:
-            user = self.request.query_params.get('search', None)
-            return Account.objects.filter(username=user)
+            user = self.request.query_params.get('search')
+            return UserProfile.objects.filter(username=user)
 
 
 class UserDetail(UpdateAPIView):

@@ -6,12 +6,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.views import generic
 
 from .calendar import get_month_name
 from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm
-from .models import Account, UserProfile
+from .models import UserProfile
 
 
 class MainPageView(generic.TemplateView):
@@ -307,40 +307,46 @@ class AccountStatisticsView(generic.FormView):
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            account = get_object_or_404(Account, number=number)
-            if account.user == request.user:
-                headers = {'Authorization': 'JWT ' + request.session["token"]}
-                get_statistic = requests.get(
-                    "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
-                    headers=headers
-                )
-                raw_stats = json.loads(get_statistic.content.decode())
-                stats = self.transform_data(list(raw_stats))
-                return render(request, self.template_name, {
-                    "title": "Account Statistics",
-                    "data": stats,
-                    "account_number": number
-                })
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            get_account = requests.get(
+                "http://localhost:8000" + reverse("api:account_detail", kwargs={'number': number}),
+                headers=headers
+            )
+            if get_account.status_code == 200:
+                account = json.loads(get_account.content.decode())
+                if account.get('user') == request.user.id:
+                    headers = {'Authorization': 'JWT ' + request.session["token"]}
+                    get_statistic = requests.get(
+                        "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
+                        headers=headers
+                    )
+                    raw_stats = json.loads(get_statistic.content.decode())
+                    stats = self.transform_data(list(raw_stats))
+                    return render(request, self.template_name, {
+                        "title": "Account Statistics",
+                        "data": stats,
+                        "account_number": number
+                    })
+                else:
+                    raise PermissionDenied
             else:
-                raise PermissionDenied
+                return render(request, '404.html')
         else:
             raise PermissionDenied
 
 
 class UserSearchView(generic.TemplateView):
-    template_name = "404.html"
-
     def get(self, request, *args, **kwargs):
-        username = request.GET.get('username')
-        user_filter = UserProfile.objects.filter(username=username)
-        if user_filter.count() != 0:
-            return redirect(
-                "finances:public_profile", username=username
-            )
+        headers = {'Authorization': 'JWT ' + request.session["token"]}
+        get_user = requests.get(
+            "http://localhost:8000" + reverse("api:user_list") + "?search=" + request.GET.get('username'),
+            headers=headers
+        )
+        user = json.loads(get_user.content.decode())
+        if len(user) == 1:
+            return redirect("finances:public_profile", username=user[0].get('username'))
         else:
-            return render(request, self.template_name, {
-                "title": "404 page"
-            })
+            return render(request, '404.html')
 
 
 class PublicProfileView(generic.TemplateView):
@@ -348,18 +354,18 @@ class PublicProfileView(generic.TemplateView):
 
     def get(self, request, username=None, *args, **kwargs):
         if username is not None:
-            user_filter = UserProfile.objects.filter(username=username)
-            if user_filter.count() != 0:
-                public_user = user_filter.get()
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            get_user = requests.get(
+                "http://localhost:8000" + reverse("api:user_list") + "?search=" + username,
+                headers=headers
+            )
+            user = json.loads(get_user.content.decode())
+            if len(user) == 1:
                 return render(request, self.template_name, {
                     "title": "Public profile",
-                    "user": public_user
+                    "user": user[0]
                 })
             else:
-                return render(request, "404.html", {
-                    "title": "404 page"
-                })
+                return render(request, "404.html")
         else:
-            return render(request, "404.html", {
-                "title": "404 page"
-            })
+            return render(request, "404.html")
