@@ -10,6 +10,6 @@ urlpatterns = [
     url(r'^accounts/(?P<number>\d+)/statistics/$', StatisticsList.as_view(), name='statistics'),
     url(r'^charges/$', ChargeList.as_view(), name='charge_list'),
     url(r'^charges/(?P<id>\d+)/$', ChargeDetail.as_view(), name='charge_detail'),
-    url(r'^profile$', UserList.as_view(), name='user_list'),
+    url(r'^profile/$', UserList.as_view(), name='user_list'),
     url(r'^profile/(?P<username>[-\w.@+-_]+)/$', UserDetail.as_view(), name='user_detail'),
 ]

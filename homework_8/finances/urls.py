@@ -3,7 +3,7 @@ from django.conf.urls import url
 from .views import (
     MainPageView, AccountView, AddChargeView,
     AccountInsertView, AccountStatisticsView, LoginView, RegisterView,
-    ProfileUpdateView, ProfileView, LogoutView, UserSearchView, PublicProfileView
+    ProfileView, LogoutView, UserSearchView, PublicProfileView
 )
 
 urlpatterns = [
@@ -16,7 +16,6 @@ urlpatterns = [
     url(r'^login/$', LoginView.as_view(), name="login"),
     url(r'^logout/$', LogoutView.as_view(), name="logout"),
     url(r'^profile/$', ProfileView.as_view(), name="profile"),
-    url(r'^update/$', ProfileUpdateView.as_view(), name="update"),
     url(r'^user_search/$', UserSearchView.as_view(), name="user_search"),
     url(r'^profile/(?P<username>[\w.@+-_]+)/$', PublicProfileView.as_view(), name='public_profile')
 ]

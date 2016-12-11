@@ -1,222 +1,70 @@
 $(document).ready(function () {
 
-    $(document).on("click", '#updateAddress', function () {
-        showAddressToChange();
+    $(document).on("click", '#update', function () {
+        showForm();
     });
 
-    $(document).on("click", '#updateFN', function () {
-        showFirstNameToChange();
-    });
-
-    $(document).on("click", '#updateLN', function () {
-        showLastNameToChange();
-    });
-
-    $(document).on("click", "#cancelAddress", function () {
-        showAddress();
-    });
-
-    $(document).on("click", "#cancelFN", function () {
-        showFirstName();
-    });
-
-    $(document).on("click", "#cancelLN", function () {
-        showLastName();
-    });
-
-    $(document).on("click", '#sendAddressAjax', function () {
-        var csrftoken = getCookie('csrftoken');
-        var text = $("#contentAddress").val();
-        $.ajaxSetup({
-            url: "/update/",
-            type: "POST",
-            beforeSend: function (xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-        $.ajax({
-            data: {'address': text},
-            success: [
-                function () {
-                    showAddress(text);
-                }
-            ],
-            error: [
-                function () {
-                    alert("Your session is over.");
-                }
-            ]
-        });
-    });
-
-    $(document).on("click", '#sendFirstNameAjax', function () {
-        var csrftoken = getCookie('csrftoken');
-        var text = $("#contentFN").val();
-        $.ajaxSetup({
-            url: "/update/",
-            type: "POST",
-            beforeSend: function (xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-        $.ajax({
-            data: {'first_name': text},
-            success: [
-                function () {
-                    showFirstName(text);
-                }
-            ],
-            error: [
-                function () {
-                    alert("Your session is over.");
-                }
-            ]
-        });
-    });
-
-    $(document).on("click", '#sendLastNameAjax', function () {
-        var csrftoken = getCookie('csrftoken');
-        var text = $("#contentLN").val();
-        $.ajaxSetup({
-            url: "/update/",
-            type: "POST",
-            beforeSend: function (xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-        $.ajax({
-            data: {'last_name': text},
-            success: [
-                function () {
-                    showLastName(text);
-                }
-            ],
-            error: [
-                function () {
-                    alert("Your session is over.");
-                }
-            ]
-        });
+    $(document).on("click", '#cancel', function () {
+        cancelForm();
     });
 
 });
 
-function showAddressToChange() {
-    var text = $('#ar').html();
-    document.cookie = "address=" + text;
-    $("#address")
+function showForm() {
+    var address = $('#ar').html();
+    var lastName = $('#ln').html();
+    var firstName = $('#fn').html();
+    var username = $('#username').html();
+    var email = $('#email').html();
+    var phone = $('#phone').html();
+    document.cookie = "address=" + address;
+    document.cookie = "firstName=" + firstName;
+    document.cookie = "lastName=" + lastName;
+    document.cookie = "username=" + username;
+    document.cookie = "email=" + email;
+    document.cookie = "phone=" + phone;
+    $("#personal")
         .empty()
-        .append("" +
-            "<div class='form-group'>" +
-            "   <input type='text' class='form-control' id='contentAddress' value='" + text + "'/>" +
-            "   <a id='sendAddressAjax'>" +
-            "       <button class='btn btn-success'>Update</button>" +
-            "   </a>" +
-            "   <a id='cancelAddress'>" +
-            "       <button class='btn btn-warning'>Cancel</button>" +
-            "   </a>" +
-            "</div>"
-        );
-    $('#contentAddress').focus();
+        .append("<form method='post' action='/profile/'>" +
+            "<div class='form-group'> " +
+            "<label class='control-label' for='id_first_name'>First name</label> " +
+            "<input class='form-control' id='id_first_name' maxlength='30' name='first_name' title='' type='text' value='" + getCookie("firstName") + "'> " +
+            "</div>" +
+            "<div class='form-group'> " +
+            "<label class='control-label' for='id_last_name'>Last name</label>" +
+            "<input class='form-control' id='id_last_name' maxlength='30' name='last_name' title='' type='text' value='" + getCookie("lastName") + "'>" +
+            "</div> " +
+            "<div class='form-group'> " +
+            "<label class='control-label' for='id_address'>Address</label>" +
+            "<input class='form-control' id='id_address' maxlength='100' name='address' title='' type='text' value='" + getCookie("address") + "'>" +
+            "</div>" +
+            "<button class='btn btn-success' type='submit'>Submit</button>" +
+            "</form>" +
+    "<a id='cancel'><button class='btn btn-warning'>Cancel</button></a>");
 }
 
-function showAddress(text) {
-    var toInsert = null;
-    if (text == null) toInsert = getCookie('address');
-    else toInsert = text;
-    document.cookie = "address=" +toInsert;
-    $("#address")
+function cancelForm() {
+    $("#personal")
         .empty()
-        .append("" +
-            "<h4>Your address: <b id='ar'>" + toInsert + "</b> " +
-            "   <a id='updateAddress'>" +
-            "       <button class='btn btn-success'>" +
-            "           <span class='glyphicon glyphicon-pencil' aria-hidden='true'></span>" +
-            "       </button>" +
-            "   </a>" +
-            "</h4>"
-        );
+        .append("<a id='update'>" +
+                "<button class='btn btn-success'>" +
+                "Edit personal data " +
+                "</button>" +
+                "</a> " +
+                "<h4>Your username: <b id='username'>" + getCookie("username")+ "</b></h4> " +
+                "<h4>Your email: <b id='email'>" + getCookie("email") + "</b></h4> " +
+                "<h4>Your telephone number: <b id='phone'>" + getCookie("phone") + "</b></h4> " +
+                "<div id='first_name'>" +
+                "<h4>Your first name: <b id='fn'>" + getCookie("firstName") + "</b></h4>" +
+                "</div> " +
+                "<div id='last_name'>" +
+                "<h4>Your last name: <b id='ln'>" + getCookie("lastName") + "</b></h4> " +
+                "</div>" +
+                "<div id='address'>" +
+            "<h4>Your address: <b id='ar'>" + getCookie("address") + "</b></h4> " +
+            "</div>");
 }
 
-function showFirstNameToChange() {
-    var text = $('#fn').html();
-    document.cookie = "firstName=" + text;
-    $("#first_name")
-        .empty()
-        .append("" +
-            "<div class='form-group'>" +
-            "   <input type='text' class='form-control' id='contentFN' value='" + text + "'/>" +
-            "   <a id='sendFirstNameAjax'>" +
-            "       <button class='btn btn-success'>Update</button>" +
-            "   </a>" +
-            "   <a id='cancelFN'>" +
-            "       <button class='btn btn-warning'>Cancel</button>" +
-            "   </a>" +
-            "</div>"
-        );
-    $('#contentFN').focus();
-}
-
-function showFirstName(text) {
-    var toInsert = null;
-    if (text == null) toInsert = getCookie('firstName');
-    else toInsert = text;
-    document.cookie = "firstName=" + toInsert;
-    $("#first_name")
-        .empty()
-        .append('' +
-            '<h4>Your first name: <b id="fn">' + toInsert + '</b> ' +
-            '   <a id="updateFN">' +
-            '       <button class="btn btn-success">' +
-            '           <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>' +
-            '       </button>' +
-            '   </a>' +
-            '</h4>'
-        );
-}
-
-function showLastNameToChange() {
-    var text = $('#ln').html();
-    document.cookie = "lastName=" + text;
-    $("#last_name")
-        .empty()
-        .append("" +
-            "<div class='form-group'>" +
-            "   <input type='text' class='form-control' id='contentLN' value='" + text + "'/>" +
-            "   <a id='sendLastNameAjax'>" +
-            "       <button class='btn btn-success'>Update</button>" +
-            "   </a>" +
-            "   <a id='cancelLN'>" +
-            "       <button class='btn btn-warning'>Cancel</button>" +
-            "   </a>" +
-            "</div>"
-        );
-    $('#contentLN').focus();
-}
-
-function showLastName(text) {
-    var toInsert = null;
-    if (text == null) toInsert = getCookie('lastName');
-    else toInsert = text;
-    document.cookie = "lastName=" + toInsert;
-    $("#last_name")
-        .empty()
-        .append("" +
-            "<h4>Your last name: <b id='ln'>" + toInsert + "</b> " +
-            "   <a id='updateLN'>" +
-            "       <button class='btn btn-success'>" +
-            "           <span class='glyphicon glyphicon-pencil' aria-hidden='true'></span>" +
-            "       </button>" +
-            "   </a>" +
-            "</h4>"
-        );
-}
 
 function getCookie(name) {
     var cookieValue = null;
@@ -233,6 +81,3 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function csrfSafeMethod(method) {
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}

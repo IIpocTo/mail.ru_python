@@ -93,3 +93,6 @@ class UserDetail(UpdateAPIView):
     serializer_class = UserDetailSerializer
     lookup_field = 'username'
     permission_classes = [IsHimself]
+
+    def perform_update(self, serializer):
+            serializer.save(user=self.request.user)

@@ -107,33 +107,8 @@ class LogoutView(generic.TemplateView):
             raise PermissionDenied
 
 
-class ProfileUpdateView(generic.TemplateView):
-    template_name = 'profile.html'
-
-    @staticmethod
-    def post(request):
-        if request.user.is_authenticated:
-            u = UserProfile.objects.get(username=request.user.username)
-            address = request.POST.get('address')
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            if address is not None:
-                u.address = address
-                u.save()
-            if first_name is not None:
-                u.first_name = first_name
-                u.save()
-            if last_name is not None:
-                u.last_name = last_name
-                u.save()
-            return HttpResponse("ok")
-        else:
-            return HttpResponse(403)
-
-
 class ProfileView(generic.TemplateView):
     template_name = 'profile.html'
-    form_update_class = ProfileUpdateForm
     form_class = AccountForm
 
     def get(self, request, *args, **kwargs):
@@ -144,11 +119,25 @@ class ProfileView(generic.TemplateView):
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": self.form_class,
-                "form_update": self.form_update_class,
-                "user": user
             })
         else:
             return redirect("finances:main")
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            address = request.POST.get('address')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            data = {'address': address, 'first_name': first_name, 'last_name': last_name}
+            put = requests.put("http://localhost:8000" + reverse("api:user_detail", args={request.user.username}), data=data, headers=headers)
+            if put.status_code != 200:
+                error_message = "Update have not been succeeded"
+                messages.error(request, error_message)
+            else:
+                success_message = "Update have been succeeded!"
+                messages.success(request, success_message)
+            return redirect(reverse("finances:profile"))
 
 
 class AccountInsertView(generic.TemplateView):
