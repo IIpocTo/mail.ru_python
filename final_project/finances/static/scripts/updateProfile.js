@@ -8,6 +8,8 @@ $(document).ready(function () {
         cancelForm();
     });
 
+    $('.alert').fadeOut(4000);
+
 });
 
 function showForm() {
