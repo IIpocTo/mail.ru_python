@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from django import forms
+from phonenumber_field.widgets import PhoneNumberPrefixWidget
 
 from .models import Charge, Account, UserProfile
 
@@ -9,38 +10,28 @@ from .models import Charge, Account, UserProfile
 class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
-        fields = [
-            "number"
-        ]
+        fields = ["number"]
 
 
 class RegisterForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = [
-            "username",
-            "password",
-            "email",
-            "phone",
-            "address"
-        ]
+        fields = ["username", "password", "email", "phone", "address"]
+        widgets = {
+            'phone': PhoneNumberPrefixWidget
+        }
 
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = [
-            "address"
-        ]
+        fields = ["address"]
 
 
 class LoginForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = [
-            "username",
-            "password"
-        ]
+        fields = ["username", "password"]
 
     def clean(self):
         username = self.cleaned_data.get('username')
@@ -60,10 +51,7 @@ class LoginForm(forms.ModelForm):
 class ChargeForm(forms.ModelForm):
     class Meta:
         model = Charge
-        fields = [
-            "value",
-            "date"
-        ]
+        fields = ["value", "date"]
 
     def clean(self):
         cleaned_data = super().clean()

@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'session_security',
     'bootstrap3',
     'rest_framework',
-    'rest_framework.authtoken',
+    'phonenumber_field',
     'finances'
 ]
 
@@ -156,3 +156,5 @@ REST_FRAMEWORK = {
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=12)
 }
+
+PHONENUMBER_DB_FORMAT = 'INTERNATIONAL'
