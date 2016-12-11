@@ -1,7 +1,11 @@
+from django.db.models import Sum
+from django.db.models.functions import Extract
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
     ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 )
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .permissions import IsAccountOwnerOrReadOnly, IsChargeOwner, IsHimself
 from .serializers import (
@@ -41,9 +45,6 @@ class ChargeList(ListCreateAPIView):
     filter_backends = [SearchFilter]
     search_fields = ['account__number']
 
-    # def perform_create(self, serializer):
-    #     serializer.save(account=self.request.user__account)
-
     def get_queryset(self):
         return Charge.objects.filter(account__user=self.request.user)
 
@@ -55,13 +56,21 @@ class ChargeDetail(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsChargeOwner]
 
 
-class StatisticsList(ListAPIView):
-    queryset = Account.objects.all()
+class StatisticsList(APIView):
+    queryset = Charge.objects.all()
     serializer_class = AccountListSerializer
     lookup_field = 'number'
 
-    def get_queryset(self):
-        return Account.objects.filter(user=self.request.user)
+    def get(self, request, number=None, *args, **kwargs):
+        content = Charge.objects\
+            .filter(account_id=number)\
+            .annotate(month=Extract('date', 'month'))\
+            .values('month').annotate(total=Sum('value'))\
+            .annotate(year=Extract('date', 'year'))\
+            .values('year', 'month', 'total')\
+            .order_by('year', 'month')\
+            .values_list('year', 'month', 'total')
+        return Response(content, status=200)
 
 
 class UserList(ListAPIView):

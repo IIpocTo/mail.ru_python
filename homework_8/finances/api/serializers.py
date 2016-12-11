@@ -61,3 +61,13 @@ class UserDetailSerializer(ModelSerializer):
             'last_name',
             'address',
         ]
+
+
+class StatisticSerializer(ModelSerializer):
+    class Meta:
+        model = Charge
+        fields = [
+            'year',
+            'month',
+            'total',
+        ]

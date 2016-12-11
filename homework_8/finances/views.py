@@ -5,15 +5,13 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.db.models import Sum
-from django.db.models.functions import Extract
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
 from .calendar import get_month_name
 from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm
-from .models import Account, Charge, UserProfile
+from .models import Account, UserProfile
 
 
 class MainPageView(generic.TemplateView):
@@ -291,7 +289,7 @@ class AddChargeView(generic.FormView):
 class AccountStatisticsView(generic.FormView):
     template_name = "statistics.html"
 
-    def get_my_data(self, variables, acc=None):
+    def transform_data(self, variables, acc=None):
         if len(variables) == 0:
             return acc
         else:
@@ -304,29 +302,24 @@ class AccountStatisticsView(generic.FormView):
                         acc[year][get_month_name(month)] = total
                 else:
                     acc[year] = {get_month_name(month): total}
-            acc_new = self.get_my_data(variables, acc)
+            acc_new = self.transform_data(variables, acc)
             return acc_new
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
-            accounts = Account.objects.filter(user=request.user)
             account = get_object_or_404(Account, number=number)
             if account.user == request.user:
-                stats2 = (Charge.objects
-                          .filter(account=account)
-                          .annotate(month=Extract('date', 'month'))
-                          .values('month')
-                          .annotate(total=Sum('value'))
-                          .annotate(year=Extract('date', 'year'))
-                          .values('year', 'month', 'total')
-                          .order_by('year', 'month')
-                          .values_list('year', 'month', 'total'))
-                stats = self.get_my_data(list(stats2))
+                headers = {'Authorization': 'JWT ' + request.session["token"]}
+                get_statistic = requests.get(
+                    "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
+                    headers=headers
+                )
+                raw_stats = json.loads(get_statistic.content.decode())
+                stats = self.transform_data(list(raw_stats))
                 return render(request, self.template_name, {
                     "title": "Account Statistics",
                     "data": stats,
-                    "account_number": number,
-                    "accounts": accounts
+                    "account_number": number
                 })
             else:
                 raise PermissionDenied
