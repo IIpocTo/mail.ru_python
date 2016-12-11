@@ -39,4 +39,8 @@
         <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/additional_tasks">
             Дополнительные задачи</a>
     </li>
+    <li>
+        <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/final_project">
+            Финальный проект</a>
+    </li>
 </ul>
