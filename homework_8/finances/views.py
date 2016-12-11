@@ -41,7 +41,8 @@ class RegisterView(generic.TemplateView):
                 username=user_name,
                 password=form.cleaned_data['password'],
                 email=form.cleaned_data['email'],
-                phone=form.cleaned_data['phone']
+                phone=form.cleaned_data['phone'],
+                address=form.cleaned_data['address']
             )
             success_message = "You have been registered"
             info_message = "You registered new User(" \
@@ -49,7 +50,6 @@ class RegisterView(generic.TemplateView):
                            + ")"
             messages.success(request, success_message)
             messages.info(request, info_message)
-
             return render(request, self.template_name, {
                 "title": "Register",
                 "form": self.form_class
