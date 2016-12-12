@@ -8,7 +8,6 @@
     {% bootstrap_css %}
     {% bootstrap_javascript jquery=1 %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="{% static 'styles/style.css' %}"/>
     <script type="text/javascript" src="{% static 'scripts/updateProfile.js' %}"></script>
 </head>
 <body>
@@ -22,6 +21,11 @@
             <li>
                 <a href="{% url "admin:main" %}">
                     <i class="fa fa-home" aria-hidden="true"></i> Main page
+                </a>
+            </li>
+            <li>
+                <a href="{% url "admin:user_list" %}">
+                    <i class="fa fa-user-circle-o" aria-hidden="true"></i> Users
                 </a>
             </li>
             <form class="navbar-form navbar-left" method="get" action="{% url "admin:main" %}">

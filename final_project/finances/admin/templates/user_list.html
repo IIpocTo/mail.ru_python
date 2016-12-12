@@ -1,0 +1,45 @@
+{% extends "template_admin.html" %}
+{% load bootstrap3 %}
+{% block header %}
+    <h1>{{ title }}</h1>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <table class="table">
+        <tr>
+            <th>User name</th>
+            <th>Phone number</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Latest log in</th>
+            <th></th>
+            <th></th>
+        </tr>
+        {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.address }}</td>
+                    <td>{{ user.last_login }}</td>
+                    <td><a><button class="btn btn-warning">Edit user</button></a></td>
+                    <td><a><button class="btn btn-danger">Delete user</button></a></td>
+                </tr>
+            </table>
+        {% endfor %}
+        <nav aria-label="user-pager">
+            <ul class="pager">
+                {% if page_previous != None %}
+                <li class="previous"><a href="{% url "admin:user_list" %}?page={{ page_previous }}"><span aria-hidden="true">&larr;</span>Previous</a></li>
+                {% endif %}
+                {% if page_next != None %}
+                <li class="next"><a href="{% url "admin:user_list" %}?page={{ page_next }}">Next<span aria-hidden="true">&rarr;</span></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}
