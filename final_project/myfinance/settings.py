@@ -49,7 +49,7 @@ ROOT_URLCONF = 'myfinance.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'finances/templates')]
+        'DIRS': [os.path.join(BASE_DIR, 'finances/templates'), os.path.join(BASE_DIR, 'finances/admin/templates')]
         ,
         'APP_DIRS': True,
         'OPTIONS': {

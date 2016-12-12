@@ -24,7 +24,7 @@
                         <i class="fa fa-home" aria-hidden="true"></i> Main page
                     </a>
                 </li>
-                {% if request.user.is_authenticated %}
+                {% if request.user.is_authenticated and not request.user.is_staff %}
 
                     <li>
                         <a href='{% url "finances:profile" %}'>

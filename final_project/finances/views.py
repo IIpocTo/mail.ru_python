@@ -79,7 +79,10 @@ class LoginView(generic.TemplateView):
                 response = requests.post("http://localhost:8000/api-token-auth/", data=userdata)
                 obj = response.json()
                 request.session["token"] = obj["token"]
-                return redirect(reverse("finances:profile"))
+                if user.is_staff:
+                    return redirect(reverse("admin:main"))
+                else:
+                    return redirect(reverse("finances:profile"))
             else:
                 messages.error(request, "Your login data is not valid")
                 return render(request, self.template_name, {
