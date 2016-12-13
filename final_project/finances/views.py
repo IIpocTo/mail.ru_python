@@ -34,20 +34,15 @@ class RegisterView(generic.TemplateView):
     def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
-            user_name = form.cleaned_data['username']
             UserProfile.objects.create_user(
-                username=user_name,
+                username=form.cleaned_data['username'],
                 password=form.cleaned_data['password'],
                 email=form.cleaned_data['email'],
                 phone=form.cleaned_data['phone'],
                 address=form.cleaned_data['address']
             )
             success_message = "You have been registered"
-            info_message = "You registered new User(" \
-                           "login: " + str(user_name) \
-                           + ")"
             messages.success(request, success_message)
-            messages.info(request, info_message)
             return render(request, self.template_name, {
                 "title": "Register",
                 "form": self.form_class
@@ -163,12 +158,8 @@ class AccountInsertView(generic.TemplateView):
                 if post.status_code != 201:
                     raise PermissionDenied
 
-                success_message = "Form successfully validated!"
-                info_message = "You created new Account(" \
-                               "number: " + str(request.POST.get('number')) \
-                               + ")"
+                success_message = "You successfully created new account!"
                 messages.success(request, success_message)
-                messages.info(request, info_message)
 
             return render(request, self.template_name, {
                 "title": "Profile",
@@ -257,6 +248,7 @@ class AddChargeView(generic.FormView):
     def post(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
             form = self.form_class(request.POST)
+
             if form.is_valid():
                 headers = {'Authorization': 'JWT ' + request.session["token"]}
                 data = {
@@ -269,13 +261,9 @@ class AddChargeView(generic.FormView):
                 if post.status_code != 201:
                     raise PermissionDenied
 
-                success_message = "Form successfully validated!"
-                info_message = "You created new Charge(" \
-                               "value: " + str(request.POST.get('value')) + \
-                               ", date: " + request.POST.get('transactedAt') + ")"
-
+                success_message = "You successfully created new charge!"
                 messages.success(request, success_message)
-                messages.info(request, info_message)
+
             return render(request, self.template_name, {
                 "title": self.title_name,
                 "form": form,
