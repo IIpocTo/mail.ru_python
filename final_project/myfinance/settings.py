@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'bootstrap3',
     'rest_framework',
     'phonenumber_field',
+    'datetimewidget',
     'finances'
 ]
 
