@@ -6,12 +6,14 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
 
 from .permissions import IsAccountOwnerOrReadOnly, IsChargeOwner, IsHimself
 from .serializers import (
     AccountDetailSerializer, AccountListSerializer, ChargeListSerializer, ChargeDetailSerializer,
     UserListSerializer, UserDetailSerializer,
-    StatisticSerializer)
+    StatisticSerializer, FullUserDetailSerializer
+)
 from ..models import Account, Charge, UserProfile
 
 
@@ -87,11 +89,13 @@ class UserList(ListAPIView):
             return UserProfile.objects.filter(username=user)
 
 
-class UserDetail(UpdateAPIView):
+class UserDetail(RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserDetailSerializer
     lookup_field = 'username'
     permission_classes = [IsHimself]
 
     def perform_update(self, serializer):
-        serializer.save(user=self.request.user)
+        if self.request.user.is_staff:
+            self.serializer_class = FullUserDetailSerializer
+            serializer.save(user=self.request.user)

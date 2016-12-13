@@ -27,16 +27,27 @@ $(document).ready(function () {
             $("#editForm").submit();
         } catch (e) {
             console.log(e);
-            setTimeout(10000, alert(""));
         }
-        $("#editUser").modal('hide');
     });
+
+    $(document).on("click", "#sendDelete", function () {
+        try {
+            $("#deleteForm").submit();
+        } catch (e) {
+            console.log(e);
+        }
+    })
 
 });
 
-var dictionary = {'username': null, 'email': null, 'firstName': null, 'lastName': null, 'phone': null, 'address': null, 'lastLogin': null}
+var dictionary = {'username': null, 'email': null, 'first_name': null, 'last_name': null, 'phone': null, 'address': null, 'last_login': null}
 
 function deleteUser(data) {
+    document.getElementById('deleteForm').getElementsByTagName('input').item(0).attributes.getNamedItem('value').nodeValue = data;
+    $("#deleteUser").modal('show');
+}
+
+function editUser(data) {
     var tr = $("#" + data);
     for (var key in dictionary) {
         dictionary[key] = tr.children().filter(function(j, elem) {
@@ -45,22 +56,18 @@ function deleteUser(data) {
     }
     console.log(dictionary);
     for (key in dictionary) {
-        $("#id_" + key).val(dictionary[key]);
+        if (key != "phone") {
+            $("#id_" + key).val(dictionary[key]);
+        } else {
+            var gap = dictionary["phone"].indexOf(' ');
+            var firstPhone = dictionary['phone'].substring(0, gap);
+            var secondPhone = dictionary['phone'].substring(gap + 1);
+            console.log(firstPhone, secondPhone);
+            $("#id_phone_0").val(firstPhone);
+            $("#id_phone_1").val(secondPhone);
+        }
     }
-    $("#editUser").modal('show');
-}
-
-function editUser(data) {
-      var tr = $("#" + data);
-    for (var key in dictionary) {
-        dictionary[key] = tr.children().filter(function(j, elem) {
-            return elem.className == key;
-        })[0].innerText;
-    }
-    console.log(dictionary);
-    for (key in dictionary) {
-        $("#id_" + key).val(dictionary[key]);
-    }
+    $("#username").text(dictionary["username"]);
     $("#editUser").modal('show');
 }
 

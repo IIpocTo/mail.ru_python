@@ -60,7 +60,19 @@ class UserDetailSerializer(ModelSerializer):
         fields = [
             'first_name',
             'last_name',
+            'address'
+        ]
+
+
+class FullUserDetailSerializer(ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'first_name',
+            'last_name',
             'address',
+            'phone',
+            'email'
         ]
 
 

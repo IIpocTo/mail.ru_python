@@ -28,8 +28,7 @@
                     <i class="fa fa-user-circle-o" aria-hidden="true"></i> Users
                 </a>
             </li>
-            <form class="navbar-form navbar-left" method="get" action="{% url "admin:main" %}">
-{#                TODO: Admin user search implementation #}
+            <form class="navbar-form navbar-left" method="get" action="{% url "admin:search_user" %}">
                 <div class="form-group">
                     <input type="text" class="form-control" name="username" placeholder="Search user">
                 </div>
