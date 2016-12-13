@@ -62,14 +62,14 @@ class StatisticsList(APIView):
 
     @staticmethod
     def get(request, number=None):
-        content = Charge.objects\
-            .filter(account_id=number)\
-            .annotate(month=Extract('date', 'month'))\
-            .values('month').annotate(total=Sum('value'))\
-            .annotate(year=Extract('date', 'year'))\
-            .values('year', 'month', 'total')\
-            .order_by('year', 'month')\
-            .values_list('year', 'month', 'total')
+        content = (Charge.objects
+                   .filter(account_id=number)
+                   .annotate(month=Extract('transactedAt', 'month'))
+                   .values('month').annotate(total=Sum('value'))
+                   .annotate(year=Extract('transactedAt', 'year'))
+                   .values('year', 'month', 'total')
+                   .order_by('year', 'month')
+                   .values_list('year', 'month', 'total'))
         return Response(content, status=200)
 
 
@@ -94,4 +94,4 @@ class UserDetail(UpdateAPIView):
     permission_classes = [IsHimself]
 
     def perform_update(self, serializer):
-            serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user)

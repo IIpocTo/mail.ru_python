@@ -27,7 +27,7 @@ class ChargeListSerializer(ModelSerializer):
         fields = [
             'account',
             'value',
-            'date'
+            'transactedAt'
         ]
 
 
@@ -37,7 +37,7 @@ class ChargeDetailSerializer(ModelSerializer):
         fields = [
             'account',
             'value',
-            'date'
+            'transactedAt'
         ]
 
 

@@ -1,6 +1,7 @@
-from datetime import date
+from datetime import timedelta, datetime
 from decimal import Decimal
 
+import pytz
 from django import forms
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
 
@@ -25,7 +26,7 @@ class RegisterForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ["last_name", "first_name","address"]
+        fields = ["last_name", "first_name", "address"]
 
 
 class LoginForm(forms.ModelForm):
@@ -51,17 +52,19 @@ class LoginForm(forms.ModelForm):
 class ChargeForm(forms.ModelForm):
     class Meta:
         model = Charge
-        fields = ["value", "date"]
+        fields = ["value", "transactedAt"]
 
     def clean(self):
         cleaned_data = super().clean()
         value = cleaned_data.get('value')
-        charge_date = cleaned_data.get('date')
+        charge_date = cleaned_data.get('transactedAt')
 
         if value is None or charge_date is None:
             return cleaned_data
         if value == Decimal(0):
             self.add_error("value", "Charge can't be a zero value")
-        if value < 0 and charge_date > date.today():
-            self.add_error("date", "You can't set negative charge on future day")
+        is_future_day = (charge_date > (datetime.now() + timedelta(days=1))
+                         .replace(hour=0, minute=0, second=0, tzinfo=pytz.UTC))
+        if value < 0 and is_future_day:
+            self.add_error("transactedAt", "You can't set negative charge on future day")
         return cleaned_data

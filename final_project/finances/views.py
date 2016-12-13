@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
@@ -181,6 +182,21 @@ class AccountInsertView(generic.TemplateView):
 class AccountView(generic.FormView):
     template_name = "account.html"
 
+    @staticmethod
+    def fill_tables(all_account_charges):
+        deposit = []
+        withdraw = []
+        for charge in all_account_charges:
+            truncated_date = datetime.strptime(charge['transactedAt'], '%Y-%m-%dT%H:%M:%SZ').date()
+            charge['transactedAt'] = truncated_date
+            if float(charge.get('value')) > 0.0:
+                deposit.append(charge)
+            else:
+                withdraw.append(charge)
+        deposit.sort(key=lambda x: x['transactedAt'])
+        withdraw.sort(key=lambda x: x['transactedAt'])
+        return deposit, withdraw
+
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
             headers = {'Authorization': 'JWT ' + request.session["token"]}
@@ -196,15 +212,7 @@ class AccountView(generic.FormView):
                         headers=headers
                     )
                     all_account_charges = get_charges.json()
-                    deposit = []
-                    withdraw = []
-                    for charge in all_account_charges:
-                        if float(charge.get('value')) > 0.0:
-                            deposit.append(charge)
-                        else:
-                            withdraw.append(charge)
-                    deposit.sort(key=lambda x: x['date'])
-                    withdraw.sort(key=lambda x: x['date'])
+                    deposit, withdraw = self.fill_tables(all_account_charges)
                     return render(request, self.template_name, {
                         "title": "Account page",
                         "deposit": deposit,
@@ -253,7 +261,7 @@ class AddChargeView(generic.FormView):
                 headers = {'Authorization': 'JWT ' + request.session["token"]}
                 data = {
                     'value': form.cleaned_data['value'],
-                    'date': form.cleaned_data['date'],
+                    'transactedAt': form.cleaned_data['transactedAt'],
                     'account': number
                 }
                 post = requests.post("http://localhost:8000" + reverse("api:charge_list"), headers=headers, data=data)
@@ -264,7 +272,7 @@ class AddChargeView(generic.FormView):
                 success_message = "Form successfully validated!"
                 info_message = "You created new Charge(" \
                                "value: " + str(request.POST.get('value')) + \
-                               ", date: " + request.POST.get('date') + ")"
+                               ", date: " + request.POST.get('transactedAt') + ")"
 
                 messages.success(request, success_message)
                 messages.info(request, info_message)
