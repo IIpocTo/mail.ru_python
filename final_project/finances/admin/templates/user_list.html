@@ -18,16 +18,16 @@
             <th></th>
         </tr>
         {% for user in users %}
-                <tr>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.phone }}</td>
-                    <td>{{ user.first_name }}</td>
-                    <td>{{ user.last_name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.address }}</td>
-                    <td>{{ user.last_login }}</td>
-                    <td><a><button class="btn btn-warning">Edit user</button></a></td>
-                    <td><a><button class="btn btn-danger">Delete user</button></a></td>
+                <tr id = "{{ user.id }}">
+                    <td class='username'>{{ user.username }}</td>
+                    <td class='phone'>{{ user.phone }}</td>
+                    <td class='firstName'>{{ user.first_name }}</td>
+                    <td class='lastName'>{{ user.last_name }}</td>
+                    <td class='email'>{{ user.email }}</td>
+                    <td class='address'>{{ user.address }}</td>
+                    <td class='lastLogin'>{{ user.last_login }}</td>
+                    <td><a><button id="edit{{ user.id }}" class="edit btn btn-warning">Edit user</button></a></td>
+                    <td><a><button id="delete{{ user.id }}" class="delete btn btn-danger">Delete user</button></a></td>
                 </tr>
             </table>
         {% endfor %}
@@ -42,4 +42,55 @@
             </ul>
         </nav>
     </div>
+    <!-- Edit user form -->
+    <div id="editUser" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- Заголовок модального окна -->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">Edit user data</h4>
+      </div>
+      <!-- Основное содержимое модального окна -->
+      <div class="modal-body">
+        <form id="editForm" method="POST" action"/admin/edit/">
+            <input type="text" id="username" value=""/>
+            <input type="text" id="email" value="" />
+            <input type="text" id="phone" value="" />
+            <input type="text" id="firstName" value="" />
+            <input type="text" id="lastName" value="" />
+            <input type="text" id="address" value="" />
+            <input type="text" id="lastLogin" value="" />
+        </form>
+      </div>
+      <!-- Футер модального окна -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveEdit">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Delete user form -->
+<div id="deleteUser" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- Заголовок модального окна -->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">Заголовок модального окна</h4>
+      </div>
+      <!-- Основное содержимое модального окна -->
+      <div class="modal-body">
+        Содержимое модального окна...
+      </div>
+      <!-- Футер модального окна -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+        <button type="button" class="btn btn-primary">Сохранить изменения</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

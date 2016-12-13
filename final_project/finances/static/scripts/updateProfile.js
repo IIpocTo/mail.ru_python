@@ -10,7 +10,44 @@ $(document).ready(function () {
 
     $('.alert').fadeOut(4000);
 
+    $(document).on("click", '.edit', {}, function() {
+        var rawId = $(this).attr('id');
+        var id = rawId.substring(4);
+        editUser(id);
+    });
+
+    $(document).on("click", '.delete', {}, function() {
+        var rawId = $(this).attr('id');
+        var id = rawId.substring(6);
+        deleteUser(id);
+    });
+
+    $(document).on("click", "#sendEdit", function() {
+        ("#editForm").submit();
+        ("#editUser").modal('fade');
+    });
+
 });
+
+var dictionary = {'username': null, 'email': null, 'firstName': null, 'lastName': null, 'phone': null, 'address': null, 'lastLogin': null}
+
+function deleteUser(data) {
+    var tr = $("#" + data);
+    for (var key in dictionary) {
+        dictionary[key] = tr.children().filter(function(j, elem) {
+            return elem.className == key;
+        })[0].innerText;
+    }
+    console.log(dictionary);
+    for (key in dictionary) {
+        $("#" + key).val(dictionary[key]);
+    }
+    $("#editUser").modal('show');
+}
+
+function editUser(data) {
+    alert(data);
+}
 
 function showForm() {
     var address = $('#ar').html();
