@@ -23,8 +23,13 @@ $(document).ready(function () {
     });
 
     $(document).on("click", "#sendEdit", function() {
-        ("#editForm").submit();
-        ("#editUser").modal('fade');
+        try {
+            $("#editForm").submit();
+        } catch (e) {
+            console.log(e);
+            setTimeout(10000, alert(""));
+        }
+        $("#editUser").modal('hide');
     });
 
 });
@@ -40,7 +45,7 @@ function deleteUser(data) {
     }
     console.log(dictionary);
     for (key in dictionary) {
-        $("#id_" + key).attr('value') = dictionary[key];
+        $("#id_" + key).val(dictionary[key]);
     }
     $("#editUser").modal('show');
 }
@@ -54,7 +59,7 @@ function editUser(data) {
     }
     console.log(dictionary);
     for (key in dictionary) {
-        $("#id_" + key).attr('value') = dictionary[key];
+        $("#id_" + key).val(dictionary[key]);
     }
     $("#editUser").modal('show');
 }

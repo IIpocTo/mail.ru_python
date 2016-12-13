@@ -1,5 +1,5 @@
 from django.views import generic
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import PermissionDenied
 
@@ -48,3 +48,12 @@ class AdminUserListView(generic.TemplateView):
                     'page_previous': page_previous
                 })
         raise PermissionDenied
+
+
+class AdminEditUserView(generic.View):
+
+    # TODO: include serializer for user updating
+    def post(self, request, *args, **kwargs):
+        username = request.POST.get("id_username")
+        email = request.POST.get("id+email")
+        return redirect(reverse("admin:users"))

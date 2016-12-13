@@ -5,6 +5,7 @@
 {% endblock %}
 {% block content %}
     <div class="container-fluid">
+        {% bootstrap_messages %}
         <table class="table">
         <tr>
             <th>User name</th>
@@ -29,8 +30,8 @@
                     <td><a><button id="edit{{ user.id }}" class="edit btn btn-warning">Edit user</button></a></td>
                     <td><a><button id="delete{{ user.id }}" class="delete btn btn-danger">Delete user</button></a></td>
                 </tr>
-            </table>
         {% endfor %}
+        </table>
         <nav aria-label="user-pager">
             <ul class="pager">
                 {% if page_previous != None %}
@@ -53,14 +54,10 @@
       </div>
       <!-- Основное содержимое модального окна -->
       <div class="modal-body">
-        <form id="editForm" method="POST" action"/admin/edit/">
+        <form id="editForm" method="POST" action="/admin/edit/">
             <div class='form-group'>
-            <label class='control-label' for='id_login'>Login</label> 
-            <input class='form-control' id='id_login' maxlength='30' name='first_name' title='' type='text' value=''>
-            </div>
-            <div class='form-group'>
-            <label class='control-label' for='id_lastLogin'>Latest log in</label>
-            <input class='form-control' id='id_lastLogin' maxlength='30' name='last_name' title='' type='text' value=''>
+            <label class='control-label' for='id_username'>Login</label>
+            <input class='form-control' id='id_username' maxlength='30' name='first_name' title='' type='text' value=''>
             </div>
             <div class='form-group'>
             <label class='control-label' for='id_email'>Email</label>
@@ -87,7 +84,7 @@
       <!-- Футер модального окна -->
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="saveEdit">Save</button>
+        <button type="button" class="btn btn-primary" id="sendEdit">Save</button>
       </div>
     </div>
   </div>
