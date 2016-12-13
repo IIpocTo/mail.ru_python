@@ -40,13 +40,23 @@ function deleteUser(data) {
     }
     console.log(dictionary);
     for (key in dictionary) {
-        $("#" + key).val(dictionary[key]);
+        $("#id_" + key).attr('value') = dictionary[key];
     }
     $("#editUser").modal('show');
 }
 
 function editUser(data) {
-    alert(data);
+      var tr = $("#" + data);
+    for (var key in dictionary) {
+        dictionary[key] = tr.children().filter(function(j, elem) {
+            return elem.className == key;
+        })[0].innerText;
+    }
+    console.log(dictionary);
+    for (key in dictionary) {
+        $("#id_" + key).attr('value') = dictionary[key];
+    }
+    $("#editUser").modal('show');
 }
 
 function showForm() {

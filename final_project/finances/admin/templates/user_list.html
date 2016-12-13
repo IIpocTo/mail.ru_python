@@ -54,13 +54,34 @@
       <!-- Основное содержимое модального окна -->
       <div class="modal-body">
         <form id="editForm" method="POST" action"/admin/edit/">
-            <input type="text" id="username" value=""/>
-            <input type="text" id="email" value="" />
-            <input type="text" id="phone" value="" />
-            <input type="text" id="firstName" value="" />
-            <input type="text" id="lastName" value="" />
-            <input type="text" id="address" value="" />
-            <input type="text" id="lastLogin" value="" />
+            <div class='form-group'>
+            <label class='control-label' for='id_login'>Login</label> 
+            <input class='form-control' id='id_login' maxlength='30' name='first_name' title='' type='text' value=''>
+            </div>
+            <div class='form-group'>
+            <label class='control-label' for='id_lastLogin'>Latest log in</label>
+            <input class='form-control' id='id_lastLogin' maxlength='30' name='last_name' title='' type='text' value=''>
+            </div>
+            <div class='form-group'>
+            <label class='control-label' for='id_email'>Email</label>
+            <input class='form-control' id='id_email' maxlength='100' name='address' title='' type='text' value=''>
+            </div>
+            <div class='form-group'>
+            <label class='control-label' for='id_phone'>Phone</label>
+            <input class='form-control' id='id_phone' maxlength='100' name='address' title='' type='text' value=''>
+            </div>
+            <div class='form-group'>
+            <label class='control-label' for='id_firstName'>First name</label>
+            <input class='form-control' id='id_firstName' maxlength='30' name='first_name' title='' type='text' value=''>
+            </div>
+            <div class='form-group'>
+            <label class='control-label' for='id_lastName'>Last name</label>
+            <input class='form-control' id='id_lastName' maxlength='30' name='last_name' title='' type='text' value=''>
+            </div> 
+            <div class='form-group'> 
+            <label class='control-label' for='id_address'>Address</label>
+            <input class='form-control' id='id_address' maxlength='100' name='address' title='' type='text' value=''>
+            </div>
         </form>
       </div>
       <!-- Футер модального окна -->
