@@ -2,12 +2,12 @@
     <li class="dropdown">
         <a id="drop1" href="{% url "finances:profile" %}"
            class="dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-tasks" aria-hidden="true"></i> Your accounts
+            <i class="fa fa-tasks" aria-hidden="true"></i> Account list
             <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
             {% for acc in accounts %}
-                <li class="">
+                <li>
                     <div class="row">
                         <a href="{% url 'finances:account' number=acc.number %}">{{ acc.number }}</a>
                         <a><button id="edit{{ acc.id }}_{{ acc.number }}" class="edit btn btn-success">

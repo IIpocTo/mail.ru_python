@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.views import generic
 
 from .calendar import get_month_name
-from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm, AccountDeleteForm, AccountEditForm
+from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm, AccountDeleteForm, AccountEditForm, ChargeDeleteForm
 from .models import UserProfile
 
 
@@ -333,6 +333,29 @@ class AddChargeView(generic.FormView):
             })
         else:
             raise PermissionDenied
+
+
+class DeleteChargeView(generic.View):
+    form_class = ChargeDeleteForm
+
+    def post(self, request, number=None):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            data = form.cleaned_data.get("charge")
+            deleter = requests.delete("http://localhost:8000" + reverse("api:charge_detail", args=[data]),
+                                      headers=headers)
+            if deleter.status_code == 204:
+                success_message = "You have been successfully delete the charge!"
+                messages.success(request, success_message)
+            else:
+                error_message = "Something went wrong with the deletion"
+                messages.error(request, error_message)
+            return redirect(reverse("finances:account", args=[number]))
+        else:
+            error_message = form.errors
+            messages.error(request, error_message)
+            return redirect(reverse("finances:account", args=[number]))
 
 
 class AccountStatisticsView(generic.FormView):

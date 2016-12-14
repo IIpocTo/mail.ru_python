@@ -26,6 +26,11 @@ $(document).ready(function () {
         editAccount(id, number);
     });
 
+    $(document).on("click", '.delete-charge', {}, function() {
+        var id = $(this).attr('id');
+        deleteCharge(id);
+    });
+
     $(document).on("click", "#sendDelete", function () {
         try {
             $("#deleteForm").submit();
@@ -42,7 +47,20 @@ $(document).ready(function () {
         }
     });
 
+    $(document).on("click", "#sendDeleteCharge", function () {
+        try {
+            $("#deleteChargeForm").submit();
+        } catch (e) {
+            console.log(e);
+        }
+    });
+
 });
+
+function deleteCharge(id) {
+    document.getElementById('deleteChargeForm').getElementsByTagName('input').item(0).attributes.getNamedItem('value').nodeValue = id;
+    $("#deleteCharge").modal('show');
+}
 
 function deleteAccount(id, number) {
     document.getElementById('deleteForm').getElementsByTagName('input').item(0).attributes.getNamedItem('value').nodeValue = number;

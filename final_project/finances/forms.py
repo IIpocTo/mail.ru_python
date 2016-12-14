@@ -97,6 +97,19 @@ class ChargeForm(ModelForm):
         return cleaned_data
 
 
+class ChargeDeleteForm(Form):
+        charge=CharField(widget=HiddenInput())
+
+        def clean(self):
+            charge_id = self.cleaned_data['charge']
+            chargel = Charge.objects.filter(id=charge_id)
+            if len(chargel) == 1:
+                charge = chargel.get()
+                return self.cleaned_data
+            else:
+                self.add_error("charge", "This charge does not exist")
+
+
 class AccountDeleteForm(ModelForm):
     class Meta:
         model = Account
