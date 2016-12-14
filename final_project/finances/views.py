@@ -1,5 +1,6 @@
-import requests
 from datetime import datetime
+
+import requests
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
@@ -8,7 +9,10 @@ from django.shortcuts import render, redirect
 from django.views import generic
 
 from .calendar import get_month_name
-from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm, AccountDeleteForm, AccountEditForm, ChargeDeleteForm
+from .forms import (
+    ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm,
+    AccountDeleteForm, AccountEditForm, SelectDateRangeForm, ChargeDeleteForm
+)
 from .models import UserProfile
 
 
@@ -95,7 +99,8 @@ class LoginView(generic.TemplateView):
 class LogoutView(generic.TemplateView):
     template_name = 'index.html'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         if request.user.is_authenticated:
             logout(request)
             return redirect("finances:main")
@@ -180,7 +185,8 @@ class AccountDeleteView(generic.View):
             if form.is_valid():
                 number = form.cleaned_data.get("number")
                 headers = {'Authorization': 'JWT ' + request.session["token"]}
-                deleter = requests.delete("http://localhost:8000" + reverse("api:account_detail", args=[number]), headers=headers)
+                deleter = requests.delete("http://localhost:8000" + reverse("api:account_detail", args=[number]),
+                                          headers=headers)
                 if deleter.status_code == 204:
                     success_message = "You have been successfully deleted account!"
                     messages.success(request, success_message)
@@ -204,11 +210,12 @@ class AccountEditView(generic.View):
             form = self.form_class(request.POST)
             if form.is_valid():
                 number = form.cleaned_data.get("number")
-                input = form.cleaned_data.get("input")
+                input_value = form.cleaned_data.get("input")
                 path = form.cleaned_data.get("path")
                 headers = {'Authorization': 'JWT ' + request.session["token"]}
-                data = {'number': input}
-                updater = requests.patch("http://localhost:8000" + reverse("api:account_detail", args=[number]), data=data, headers=headers)
+                data = {'number': input_value}
+                updater = requests.patch("http://localhost:8000" + reverse("api:account_detail", args=[number]),
+                                         data=data, headers=headers)
                 if updater.status_code == 200:
                     success_message = "You have been successfully updated account!"
                     messages.success(request, success_message)
@@ -232,8 +239,8 @@ class AccountView(generic.FormView):
         deposit = []
         withdraw = []
         for charge in all_account_charges:
-            truncated_date = datetime.strptime(charge['transactedAt'], '%Y-%m-%dT%H:%M:%SZ').date()
-            charge['transactedAt'] = truncated_date
+            truncated_datetime = datetime.strptime(charge['transactedAt'], '%Y-%m-%dT%H:%M:%SZ').date()
+            charge['transactedAt'] = truncated_datetime
             if float(charge.get('value')) > 0.0:
                 deposit.append(charge)
             else:
@@ -360,6 +367,7 @@ class DeleteChargeView(generic.View):
 
 class AccountStatisticsView(generic.FormView):
     template_name = "statistics.html"
+    form_class = SelectDateRangeForm
 
     def transform_data(self, variables, acc=None):
         if len(variables) == 0:
@@ -387,7 +395,6 @@ class AccountStatisticsView(generic.FormView):
             if get_account.status_code == 200:
                 account = get_account.json()
                 if account.get('user') == request.user.id:
-                    headers = {'Authorization': 'JWT ' + request.session["token"]}
                     get_statistic = requests.get(
                         "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
                         headers=headers
@@ -397,6 +404,41 @@ class AccountStatisticsView(generic.FormView):
                     return render(request, self.template_name, {
                         "title": "Account Statistics",
                         "data": stats,
+                        "form": self.form_class,
+                        "account_number": number
+                    })
+                else:
+                    raise PermissionDenied
+            else:
+                return render(request, '404.html')
+        else:
+            raise PermissionDenied
+
+    def post(self, request, number=None, *args, **kwargs):
+        if request.user.is_authenticated:
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            get_account = requests.get(
+                "http://localhost:8000" + reverse("api:account_detail", kwargs={'number': number}),
+                headers=headers
+            )
+            if get_account.status_code == 200:
+                account = get_account.json()
+                if account.get('user') == request.user.id:
+                    date_range = request.POST.get('date_range')
+                    date_from = date_range[:10]
+                    date_to = date_range[-10:]
+                    get_charges_by_date = requests.get(
+                        "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number})
+                        + "?date_from=" + str(date_from) + "&date_to=" + str(date_to),
+                        headers=headers
+                    )
+                    stats = self.transform_data(get_charges_by_date.json())
+                    return render(request, self.template_name, {
+                        "title": "Account Statistics",
+                        "data": stats,
+                        "date_from": date_from,
+                        "date_to": date_to,
+                        "form": self.form_class,
                         "account_number": number
                     })
                 else:
@@ -408,7 +450,8 @@ class AccountStatisticsView(generic.FormView):
 
 
 class UserSearchView(generic.TemplateView):
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         headers = {'Authorization': 'JWT ' + request.session["token"]}
         get_user = requests.get(
             "http://localhost:8000" + reverse("api:user_list") + "?search=" + request.GET.get('username'),

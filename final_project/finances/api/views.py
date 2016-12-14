@@ -1,12 +1,14 @@
+from datetime import datetime, timedelta
+
 from django.db.models import Sum
 from django.db.models.functions import Extract
+from pytz import UTC
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
-    ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
+    ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAdminUser
 
 from .permissions import IsAccountOwnerOrReadOnly, IsChargeOwner, IsHimself
 from .serializers import (
@@ -74,14 +76,34 @@ class StatisticsList(APIView):
 
     @staticmethod
     def get(request, number=None):
-        content = (Charge.objects
-                   .filter(account_id=number)
-                   .annotate(month=Extract('transactedAt', 'month'))
-                   .values('month').annotate(total=Sum('value'))
-                   .annotate(year=Extract('transactedAt', 'year'))
-                   .values('year', 'month', 'total')
-                   .order_by('year', 'month')
-                   .values_list('year', 'month', 'total'))
+        content = {}
+        if len(request.query_params) == 0:
+
+            content = (Charge.objects
+                       .filter(account__number=number)
+                       .annotate(month=Extract('transactedAt', 'month'))
+                       .values('month').annotate(total=Sum('value'))
+                       .annotate(year=Extract('transactedAt', 'year'))
+                       .values('year', 'month', 'total')
+                       .order_by('year', 'month')
+                       .values_list('year', 'month', 'total'))
+
+        elif (request.query_params.get('date_from', None) and request.query_params.get('date_to', None)) is not None:
+
+            date_from = (datetime.strptime(request.query_params.get('date_from'), '%Y-%m-%d')
+                         .replace(tzinfo=UTC))
+            date_to = ((datetime.strptime(request.query_params.get('date_to'), '%Y-%m-%d') + timedelta(days=1))
+                       .replace(tzinfo=UTC))
+
+            content = (Charge.objects
+                       .filter(account__number=number, transactedAt__range=[date_from, date_to])
+                       .annotate(month=Extract('transactedAt', 'month'))
+                       .values('month').annotate(total=Sum('value'))
+                       .annotate(year=Extract('transactedAt', 'year'))
+                       .values('year', 'month', 'total')
+                       .order_by('year', 'month')
+                       .values_list('year', 'month', 'total'))
+
         return Response(content, status=200)
 
 

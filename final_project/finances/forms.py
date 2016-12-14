@@ -3,11 +3,12 @@ from decimal import Decimal
 
 from datetimewidget.widgets import DateTimeWidget
 from django.core.validators import RegexValidator
-from django.forms import Form, ModelForm, CharField, EmailField, HiddenInput
+from django.forms import Form, ModelForm, CharField, EmailField, HiddenInput, TextInput
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
 from pytz import UTC
 
+from .fields import DateRangeField
 from .models import Charge, Account, UserProfile
 
 
@@ -160,3 +161,10 @@ class AccountEditForm(Form):
                 return self.cleaned_data
             else:
                 self.add_error("number", "There is already such existing number")
+
+
+class SelectDateRangeForm(Form):
+    date_range = DateRangeField(required=True, widget=TextInput(attrs={
+        'placeholder': 'Choose date range here',
+        'class': 'form-control datepicker'
+    }))

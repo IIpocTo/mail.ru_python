@@ -5,11 +5,15 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ title }}</title>
-    {% bootstrap_css %}
     {% bootstrap_javascript jquery=1 %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.24/moment.min.js"></script>
+    {% bootstrap_css %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.24/daterangepicker.min.css">
     <link rel="stylesheet" href="{% static 'styles/style.css' %}"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.24/daterangepicker.min.js"></script>
     <script type="text/javascript" src="{% static 'scripts/updateProfile.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/dateRangePicker.js' %}"></script>
     {{ form.media }}
 </head>
 <body>

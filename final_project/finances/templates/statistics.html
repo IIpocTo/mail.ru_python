@@ -1,17 +1,43 @@
 {% extends "template.html" %}
 {% load bootstrap3 %}
 {% block header %}
-    <h1>{{ title }}</h1>
-    <a href="{% url 'finances:account' number=account_number %}">
-        <button id="" class="btn btn-primary">
-            <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to the account page
-        </button>
-    </a>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <h1>{{ title }}</h1>
+        <a href="{% url 'finances:account' number=account_number %}">
+            <button class="btn btn-primary">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to the account page
+            </button>
+        </a>
+    </div>
+    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        <form action='{% url "finances:statistics" number=account_number %}' method="post"
+              class="form-horizontal" role="form">
+            <div class="form-group">
+                <legend>Display statistic of charges completed only in this of days</legend>
+            </div>
+            <div class="form-group">
+                <label for="date_range_picker" class="col-sm-4 control-label">Choose dates:</label>
+                {% for field in form %}
+                    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                        {{ field }}
+                    </div>
+                {% endfor %}
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                    <button type="submit" class="btn btn-primary">Update statistics</button>
+                </div>
+            </div>
+        </form>
+    </div>
 {% endblock %}
 {% block content %}
     <div id="stats_table_div">
         {% ifnotequal data.items|length 0 %}
             <table class="container">
+                {% if date_to is not None and date_from is not None %}
+                    <legend>Account {{ account_number }} statistics from {{ date_from }} to {{ date_to }}.</legend>
+                {% else %}
+                    <legend>Account {{ account_number }} statistics for all days.</legend>
+                {% endif %}
                 {% for k,v in data.items %}
                 <tr>
                     <th>{{ k }}</th>
@@ -25,7 +51,11 @@
                 {% endfor %}
             </table>
         {% else %}
-            <h2>You don't have any charge so we can't show statistics.</h2>
+            {% if date_to is not None and date_from is not None %}
+                <h2>You don't have any charge from {{ date_from }} to {{ date_to }}.</h2>
+            {% else %}
+                <h2>You don't have any charge so we can't show statistics.</h2>
+            {% endif %}
         {% endifnotequal %}
     </div>
 {% endblock %}
