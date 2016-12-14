@@ -3,7 +3,8 @@ from django.conf.urls import url
 from .views import (
     MainPageView, AccountView, AddChargeView,
     AccountInsertView, AccountStatisticsView, LoginView, RegisterView,
-    ProfileView, LogoutView, UserSearchView, PublicProfileView, AccountDeleteView, AccountEditView, DeleteChargeView
+    ProfileView, LogoutView, UserSearchView, PublicProfileView,
+    AccountDeleteView, AccountEditView, DeleteChargeView, ReportView
 )
 
 urlpatterns = [
@@ -13,6 +14,7 @@ urlpatterns = [
     url(r'^accounts/(?P<number>\d+)/add/$', AddChargeView.as_view(), name='add_charge'),
     url(r'^accounts/(?P<number>\d+)/delete/$', DeleteChargeView.as_view(), name='delete_charge'),
     url(r'^accounts/(?P<number>\d+)/statistics/$', AccountStatisticsView.as_view(), name='statistics'),
+    url(r'^accounts/(?P<number>\d+)/report/$', ReportView.as_view(), name='report'),
     url(r'^register/$', RegisterView.as_view(), name="register"),
     url(r'^login/$', LoginView.as_view(), name="login"),
     url(r'^logout/$', LogoutView.as_view(), name="logout"),
@@ -20,5 +22,5 @@ urlpatterns = [
     url(r'delete/$', AccountDeleteView.as_view(), name='delete'),
     url(r'edit/$', AccountEditView.as_view(), name='edit'),
     url(r'^user_search/$', UserSearchView.as_view(), name="user_search"),
-    url(r'^profile/(?P<username>[\w.@+-_]+)/$', PublicProfileView.as_view(), name='public_profile')
+    url(r'^profile/(?P<username>\w+)/$', PublicProfileView.as_view(), name='public_profile')
 ]

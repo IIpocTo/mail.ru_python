@@ -1,22 +1,23 @@
 from datetime import datetime
 
+import django_excel as excel
 import requests
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
-from django.views import generic
+from django.views.generic import View, FormView, TemplateView
 
-from .calendar import get_month_name
 from .forms import (
     ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm,
     AccountDeleteForm, AccountEditForm, SelectDateRangeForm, ChargeDeleteForm
 )
 from .models import UserProfile
+from .utils import transform_data
 
 
-class MainPageView(generic.TemplateView):
+class MainPageView(TemplateView):
     template_name = 'index.html'
 
     def get(self, request, *args, **kwargs):
@@ -25,7 +26,7 @@ class MainPageView(generic.TemplateView):
         })
 
 
-class RegisterView(generic.TemplateView):
+class RegisterView(TemplateView):
     template_name = 'register.html'
     form_class = RegisterForm
 
@@ -57,7 +58,7 @@ class RegisterView(generic.TemplateView):
         })
 
 
-class LoginView(generic.TemplateView):
+class LoginView(TemplateView):
     template_name = 'auth.html'
     form_class = LoginForm
 
@@ -96,7 +97,7 @@ class LoginView(generic.TemplateView):
         })
 
 
-class LogoutView(generic.TemplateView):
+class LogoutView(TemplateView):
     template_name = 'index.html'
 
     @staticmethod
@@ -108,7 +109,7 @@ class LogoutView(generic.TemplateView):
             raise PermissionDenied
 
 
-class ProfileView(generic.TemplateView):
+class ProfileView(TemplateView):
     template_name = 'profile.html'
     form_class = AccountForm
 
@@ -144,7 +145,7 @@ class ProfileView(generic.TemplateView):
             return redirect(reverse("finances:profile"))
 
 
-class AccountInsertView(generic.TemplateView):
+class AccountInsertView(TemplateView):
     template_name = 'profile.html'
     form_update_class = ProfileUpdateForm
     form_class = AccountForm
@@ -176,7 +177,7 @@ class AccountInsertView(generic.TemplateView):
             raise PermissionDenied
 
 
-class AccountDeleteView(generic.View):
+class AccountDeleteView(View):
     form_class = AccountDeleteForm
 
     def post(self, request):
@@ -202,7 +203,7 @@ class AccountDeleteView(generic.View):
             raise PermissionDenied
 
 
-class AccountEditView(generic.View):
+class AccountEditView(View):
     form_class = AccountEditForm
 
     def post(self, request):
@@ -231,7 +232,7 @@ class AccountEditView(generic.View):
             raise PermissionDenied
 
 
-class AccountView(generic.FormView):
+class AccountView(FormView):
     template_name = "account.html"
 
     @staticmethod
@@ -279,7 +280,7 @@ class AccountView(generic.FormView):
             raise PermissionDenied
 
 
-class AddChargeView(generic.FormView):
+class AddChargeView(FormView):
     template_name = "add_charge.html"
     form_class = ChargeForm
     title_name = "Add new Charge"
@@ -342,7 +343,7 @@ class AddChargeView(generic.FormView):
             raise PermissionDenied
 
 
-class DeleteChargeView(generic.View):
+class DeleteChargeView(View):
     form_class = ChargeDeleteForm
 
     def post(self, request, number=None):
@@ -365,25 +366,9 @@ class DeleteChargeView(generic.View):
             return redirect(reverse("finances:account", args=[number]))
 
 
-class AccountStatisticsView(generic.FormView):
+class AccountStatisticsView(FormView):
     template_name = "statistics.html"
     form_class = SelectDateRangeForm
-
-    def transform_data(self, variables, acc=None):
-        if len(variables) == 0:
-            return acc
-        else:
-            year, month, total = variables.pop(-1)
-            if acc is None:
-                acc = {year: {get_month_name(month): total}}
-            else:
-                if acc.get(year) is not None:
-                    if get_month_name(month) not in acc[year]:
-                        acc[year][get_month_name(month)] = total
-                else:
-                    acc[year] = {get_month_name(month): total}
-            acc_new = self.transform_data(variables, acc)
-            return acc_new
 
     def get(self, request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
@@ -421,7 +406,8 @@ class AccountStatisticsView(generic.FormView):
                             + "?date_from=" + str(date_from) + "&date_to=" + str(date_to),
                             headers=headers
                         )
-                        stats = self.transform_data(get_charges_by_date.json())
+                        raw_stats = get_charges_by_date.json()
+                        stats = transform_data(list(raw_stats))
                         return render(request, self.template_name, {
                             "title": "Account Statistics",
                             "data": stats,
@@ -436,7 +422,7 @@ class AccountStatisticsView(generic.FormView):
                             headers=headers
                         )
                         raw_stats = get_statistic.json()
-                        stats = self.transform_data(list(raw_stats))
+                        stats = transform_data(list(raw_stats))
                         return render(request, self.template_name, {
                             "title": "Account Statistics",
                             "data": stats,
@@ -450,7 +436,8 @@ class AccountStatisticsView(generic.FormView):
         else:
             raise PermissionDenied
 
-    def post(self, request, number=None, *args, **kwargs):
+    @staticmethod
+    def post(request, number=None, *args, **kwargs):
         if request.user.is_authenticated:
             headers = {'Authorization': 'JWT ' + request.session["token"]}
             get_account = requests.get(
@@ -473,7 +460,7 @@ class AccountStatisticsView(generic.FormView):
             raise PermissionDenied
 
 
-class UserSearchView(generic.TemplateView):
+class UserSearchView(TemplateView):
     @staticmethod
     def get(request, *args, **kwargs):
         headers = {'Authorization': 'JWT ' + request.session["token"]}
@@ -488,7 +475,7 @@ class UserSearchView(generic.TemplateView):
             return render(request, '404.html')
 
 
-class PublicProfileView(generic.TemplateView):
+class PublicProfileView(TemplateView):
     template_name = "public_profile.html"
 
     def get(self, request, username=None, *args, **kwargs):
@@ -508,3 +495,23 @@ class PublicProfileView(generic.TemplateView):
                 return render(request, "404.html")
         else:
             return render(request, "404.html")
+
+
+class ReportView(View):
+
+    @staticmethod
+    def get(request, number=None):
+        headers = {'Authorization': 'JWT ' + request.session["token"]}
+        get_account = requests.get(
+            "http://localhost:8000" + reverse("api:account_detail", kwargs={'number': number}),
+            headers=headers
+        )
+        if get_account.status_code == 200:
+            account = get_account.json()
+            if account.get('user') == request.user.id:
+                get_statistic = requests.get(
+                    "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
+                    headers=headers
+                )
+                raw_stats = get_statistic.json()
+                return excel.make_response_from_array(raw_stats, file_type='xlsx', file_name="custom")

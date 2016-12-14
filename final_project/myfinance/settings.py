@@ -147,3 +147,8 @@ JWT_AUTH = {
 }
 
 PHONENUMBER_DB_FORMAT = 'INTERNATIONAL'
+
+FILE_UPLOAD_HANDLERS = (
+    "django_excel.ExcelMemoryFileUploadHandler",
+    "django_excel.TemporaryExcelFileUploadHandler"
+)
