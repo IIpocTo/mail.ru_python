@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from datetimewidget.widgets import DateTimeWidget
 from django.core.validators import RegexValidator
-from django.forms import Form, ModelForm, CharField, EmailField
+from django.forms import Form, ModelForm, CharField, EmailField, HiddenInput
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
 from pytz import UTC
@@ -95,3 +95,55 @@ class ChargeForm(ModelForm):
         if value < 0 and is_future_day:
             self.add_error("transactedAt", "You can't set negative charge on future day")
         return cleaned_data
+
+
+class AccountDeleteForm(ModelForm):
+    class Meta:
+        model = Account
+        fields = ["number"]
+
+    def clean(self):
+        number = self.cleaned_data.get("number")
+        acc = Account.objects.filter(number=number)
+        if acc is not None:
+            return self.cleaned_data
+        else:
+            self.add_error("number", "There is no such account")
+
+
+class AccountEditForm(Form):
+    input = CharField(max_length=12, validators=[
+        RegexValidator(
+            r'^\d+$',
+            message="Account number must contains only digits"
+        ),
+        RegexValidator(
+            r'^[1-9]{1}\d{11}$',
+            message="Account number must have precisely 12 digits and can not start with 0"
+        )
+    ])
+    number = CharField(widget=HiddenInput())
+    path = CharField(widget=HiddenInput())
+
+    def clean(self):
+        number = self.cleaned_data.get("number")
+        acc_id = self.cleaned_data.get("input")
+        acc1 = None
+        acc2_elem = None
+        acc2 = None
+        try:
+            acc1 = Account.objects.get(number=number)
+            acc2 = Account.objects.filter(number=acc_id)
+        except Account.DoesNotExist:
+            self.add_error("number", "Number input is not valid")
+        if len(acc2) == 0:
+            return self.cleaned_data
+        else:
+            try:
+                acc2_elem = acc2.get()
+            except Account.DoesNotExist:
+                self.add_error("number", "Number input is not valid")
+            if acc2_elem.id == acc1.id:
+                return self.cleaned_data
+            else:
+                self.add_error("number", "There is already such existing number")

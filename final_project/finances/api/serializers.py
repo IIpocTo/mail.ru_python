@@ -8,6 +8,7 @@ class AccountListSerializer(ModelSerializer):
     class Meta:
         model = Account
         fields = [
+            'id',
             'number'
         ]
 
@@ -16,8 +17,10 @@ class AccountDetailSerializer(ModelSerializer):
     class Meta:
         model = Account
         fields = [
+            'id',
             'user',
-            'number'
+            'number',
+            'total'
         ]
 
 

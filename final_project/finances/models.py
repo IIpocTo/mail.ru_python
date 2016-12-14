@@ -12,7 +12,7 @@ class UserProfile(AbstractUser):
 
 
 class Account(Model):
-    number = CharField(primary_key=True, max_length=12, verbose_name="Account number", validators=[
+    number = CharField(unique=True, max_length=12, verbose_name="Account number", validators=[
         RegexValidator(
             r'^\d+$',
             message="Account number must contains only digits"
@@ -22,6 +22,7 @@ class Account(Model):
             message="Account number must have precisely 12 digits and can not start with 0"
         )
     ])
+    total = DecimalField(max_digits=12, decimal_places=2, default=None, null=True)
     user = ForeignKey(UserProfile, related_name='accounts')
 
     def __str__(self):

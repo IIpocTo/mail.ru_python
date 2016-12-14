@@ -40,6 +40,9 @@ class AccountDetail(RetrieveUpdateDestroyAPIView):
     lookup_field = 'number'
     permission_classes = [IsAccountOwnerOrReadOnly]
 
+    def perform_update(self, serializer):
+        serializer.save()
+
 
 class ChargeList(ListCreateAPIView):
     queryset = Charge.objects.all()
@@ -98,4 +101,4 @@ class UserDetail(RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         if self.request.user.is_staff:
             self.serializer_class = FullUserDetailSerializer
-            serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user)

@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.views import generic
 
 from .calendar import get_month_name
-from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm
+from .forms import ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm, AccountDeleteForm, AccountEditForm
 from .models import UserProfile
 
 
@@ -112,6 +112,7 @@ class ProfileView(generic.TemplateView):
             return render(request, self.template_name, {
                 "title": "Profile",
                 "form": self.form_class,
+                "form2": AccountEditForm
             })
         else:
             return redirect("finances:main")
@@ -170,6 +171,59 @@ class AccountInsertView(generic.TemplateView):
             raise PermissionDenied
 
 
+class AccountDeleteView(generic.View):
+    form_class = AccountDeleteForm
+
+    def post(self, request):
+        if request.user.is_authenticated:
+            form = self.form_class(request.POST)
+            if form.is_valid():
+                number = form.cleaned_data.get("number")
+                headers = {'Authorization': 'JWT ' + request.session["token"]}
+                deleter = requests.delete("http://localhost:8000" + reverse("api:account_detail", args=[number]), headers=headers)
+                if deleter.status_code == 204:
+                    success_message = "You have been successfully deleted account!"
+                    messages.success(request, success_message)
+                else:
+                    error_message = "Something went wrong with the deletion"
+                    messages.error(request, error_message)
+                return redirect(reverse("finances:profile"))
+            else:
+                error_message = form.errors
+                messages.error(request, error_message)
+                return redirect(reverse("finances:profile"))
+        else:
+            raise PermissionDenied
+
+
+class AccountEditView(generic.View):
+    form_class = AccountEditForm
+
+    def post(self, request):
+        if request.user.is_authenticated:
+            form = self.form_class(request.POST)
+            if form.is_valid():
+                number = form.cleaned_data.get("number")
+                input = form.cleaned_data.get("input")
+                path = form.cleaned_data.get("path")
+                headers = {'Authorization': 'JWT ' + request.session["token"]}
+                data = {'number': input}
+                updater = requests.patch("http://localhost:8000" + reverse("api:account_detail", args=[number]), data=data, headers=headers)
+                if updater.status_code == 200:
+                    success_message = "You have been successfully updated account!"
+                    messages.success(request, success_message)
+                else:
+                    error_message = "Something went wrong with the update"
+                    messages.error(request, error_message)
+                return redirect(path)
+            else:
+                error_message = form.errors
+                messages.error(request, error_message)
+                return redirect(reverse("finances:profile"))
+        else:
+            raise PermissionDenied
+
+
 class AccountView(generic.FormView):
     template_name = "account.html"
 
@@ -208,7 +262,7 @@ class AccountView(generic.FormView):
                         "title": "Account page",
                         "deposit": deposit,
                         "withdraw": withdraw,
-                        "account_number": number
+                        "account": account
                     })
                 else:
                     raise PermissionDenied
