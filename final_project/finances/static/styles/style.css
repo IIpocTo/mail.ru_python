@@ -30,3 +30,16 @@ td:hover {
 #stats_table_div {
     margin-top: 20px;
 }
+
+.accountlist {
+    margin-left: 5px;
+    margin-top: 5px;
+}
+
+.alink {
+    text-decoration: underline;
+}
+
+ul.dropdown-menu {
+    min-width: 195px;
+}
