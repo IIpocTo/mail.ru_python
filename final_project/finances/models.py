@@ -22,7 +22,6 @@ class Account(Model):
             message="Account number must have precisely 12 digits and can not start with 0"
         )
     ])
-    total = DecimalField(max_digits=12, decimal_places=2, default=None, null=True)
     user = ForeignKey(UserProfile, related_name='accounts')
 
     def __str__(self):

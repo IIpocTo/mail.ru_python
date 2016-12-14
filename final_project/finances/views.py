@@ -257,7 +257,6 @@ class AccountView(generic.FormView):
                         headers=headers
                     )
                     all_account_charges = get_charges.json()
-                    print(all_account_charges)
                     deposit, withdraw = self.fill_tables(all_account_charges)
                     return render(request, self.template_name, {
                         "title": "Account page",

@@ -20,7 +20,6 @@ class AccountDetailSerializer(ModelSerializer):
             'id',
             'user',
             'number',
-            'total'
         ]
 
 

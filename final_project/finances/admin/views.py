@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect, reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from decimal import Decimal
+from functools import reduce
 import json
 import requests
 
@@ -131,6 +133,18 @@ class AdminSearchUserView(generic.TemplateView):
         headers = {'Authorization': 'JWT ' + request.session["token"]}
         response = requests.get("http://localhost:8000" + reverse("api:account_list") + "?search=" + username, headers=headers)
         accounts = json.loads(response.content.decode())
+        for elem in accounts:
+            get_charges = requests.get(
+                "http://localhost:8000" + reverse("api:charge_list") + "?search=" + elem["number"],
+                headers=headers
+            )
+            account_charges = get_charges.json()
+            if len(account_charges) == 0:
+                elem["total"] = None
+            else:
+                elem["total"] = reduce(lambda x,y: Decimal(x) + Decimal(y),
+                                       map(lambda x: x["value"], account_charges),
+                                       0.00)
         return render(request, self.template_name, {
             "title": "User detail view",
             "user": user,

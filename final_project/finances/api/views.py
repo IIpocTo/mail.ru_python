@@ -51,7 +51,14 @@ class ChargeList(ListCreateAPIView):
     search_fields = ['account__number']
 
     def get_queryset(self):
-        return Charge.objects.filter(account__user=self.request.user)
+        if self.request.user.is_staff:
+            if len(self.request.query_params) == 0:
+                return Charge.objects.filter(account__user=self.request.user)
+            elif self.request.query_params.get('search', None) is not None:
+                account = self.request.query_params.get('search', None)
+                return Charge.objects.filter(account__number=account)
+        else:
+            return Charge.objects.filter(account__user=self.request.user)
 
 
 class ChargeDetail(RetrieveUpdateDestroyAPIView):
