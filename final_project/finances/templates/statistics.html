@@ -1,11 +1,39 @@
 {% extends "template.html" %}
 {% load bootstrap3 %}
 {% block header %}
+    <script>
+        google.charts.load("current", {packages:["corechart"]});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var array = [['Amount', 'Date']];
+            {% for k,v in data.items %}
+                {% for key, value in v.items %}
+                    array.push([{{ value }},"{{k}} {{ key }}"]);
+                {% endfor %}
+            {% endfor %}
+            console.log(array);
+            var data = google.visualization.arrayToDataTable(array);
+            var options = {
+                title: 'Your statistic visualization',
+                legend: { position: 'none' },
+                color: ['green']
+            };
+            var elem = document.getElementById('graphHistogram');
+            var chart = new google.visualization.Histogram(elem);
+            chart.draw(data, options);
+        }
+    </script>
     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
         <h1>{{ title }}</h1>
         <a href="{% url 'finances:account' number=account_number %}">
             <button class="btn btn-primary">
                 <i class="fa fa-angle-double-left" aria-hidden="true"></i> Return to the account page
+            </button>
+        </a>
+        <a id="graphShow">
+            <button class="btn btn-primary">
+                Look at the visualisation
             </button>
         </a>
         {% if date_to is not None and date_from is not None %}
@@ -76,4 +104,19 @@
             {% endif %}
         {% endifnotequal %}
     </div>
+    <div id="graphView" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Statistics</h4>
+            </div>
+            <div class="modal-body" id="graphHistogram">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

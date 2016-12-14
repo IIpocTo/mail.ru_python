@@ -41,12 +41,9 @@ function deleteUser(data) {
 
 function editUser(data) {
     var tr = $("#" + data);
-    myFilter = function(j, elem) {
+    for (var key in dictionary) dictionary[key] = tr.children().filter(function (j, elem) {
         return elem.className == key;
-    };
-    for (var key in dictionary) {
-        dictionary[key] = tr.children(myFilter).filter()[0].innerText;
-    }
+    })[0].innerText;
     console.log(dictionary);
     for (key in dictionary) {
         if (key != "phone") {

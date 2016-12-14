@@ -10,3 +10,11 @@ $(function () {
         $(this).val('');
     });
 });
+
+$(document).ready( function () {
+
+   $(document).on("click","#graphShow",function () {
+    $("#graphView").modal('show');
+});
+
+});
