@@ -6,22 +6,44 @@
         google.charts.setOnLoadCallback(drawChart);
 
         function drawChart() {
-            var array = [['Amount', 'Date']];
+            var header = ['Date', 'Total'];
+            var array_all = [];
+            var array = [];
             {% for k,v in data.items %}
-                {% for key, value in v.items %}
-                    array.push([{{ value }},"{{k}} {{ key }}"]);
-                {% endfor %}
+                {% ifequal data.keys|length 1 %}
+                    {% for key, value in v.items %}
+                        array.push(["{{k}} \n {{ key }}",{{ value }}]);
+                    {% endfor %}
+                {% else %}
+                    {% for key, value in v.items %}
+                        var annual = 0;
+                        annual = annual + {{ value }};
+                    {% endfor %}
+                        array.push(["{{k}}", annual]);
+                {% endifequal %}
             {% endfor %}
-            console.log(array);
-            var data = google.visualization.arrayToDataTable(array);
-            var options = {
-                title: 'Your statistic visualization',
-                legend: { position: 'none' },
-                color: ['green']
-            };
-            var elem = document.getElementById('graphHistogram');
-            var chart = new google.visualization.Histogram(elem);
-            chart.draw(data, options);
+            if (array.length != 0) {
+                array.reverse();
+                for (var i = 0; i < array.length; i++) {
+                    if (i > 0) array[i][1] = array[i][1] + array[i - 1][1];
+                }
+                console.log(array);
+                array_all.push(header);
+                array_all = array_all.concat(array);
+                var data = google.visualization.arrayToDataTable(array_all);
+                var options = {
+                    'title': 'Your statistic visualization',
+                    'legend': {position: 'top', maxLines: 2},
+                    'width': 1000,
+                    'height': 500,
+                    'curveType': 'function',
+                    'colors': ['green']
+                };
+                var chart = new google.visualization.LineChart(document.getElementById('graphChart'));
+                chart.draw(data, options);
+            } else {
+                $("#graphChart").append("<h2>There is no data yet to display!</h2>");
+            }
         }
     </script>
     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
@@ -105,13 +127,13 @@
         {% endifnotequal %}
     </div>
     <div id="graphView" class="modal fade">
-    <div class="modal-dialog">
+    <div class="modal-dialog" id="toEnlarge">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 <h4 class="modal-title">Statistics</h4>
             </div>
-            <div class="modal-body" id="graphHistogram">
+            <div class="modal-body" id="graphChart" style="width: 900px; height: 500px;">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
