@@ -11,7 +11,18 @@
         {% if date_to is not None and date_from is not None %}
             <a href="{% url 'finances:statistics' number=account_number %}">
                 <button class="btn btn-primary">
-                    <i class="fa fa-angle-left" aria-hidden="true"></i> Return to the all days statistics page
+                    <i class="fa fa-angle-left" aria-hidden="true"></i> Return to the total statistics page
+                </button>
+            </a>
+            <a href="{% url 'finances:report' number=account_number %}?date_from={{ date_from }}&date_to={{ date_to }}">
+                <button class="btn btn-info">
+                    <i class="fa fa-download" aria-hidden="true"></i> Download report
+                </button>
+            </a>
+        {% else %}
+            <a href="{% url 'finances:report' number=account_number %}">
+                <button class="btn btn-info">
+                    <i class="fa fa-download" aria-hidden="true"></i> Download report
                 </button>
             </a>
         {% endif %}

@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.generic import View, FormView, TemplateView
+from pyexcel import Sheet
 
 from .forms import (
     ChargeForm, AccountForm, RegisterForm, LoginForm, ProfileUpdateForm,
@@ -403,7 +404,7 @@ class AccountStatisticsView(FormView):
                             return render(request, '404.html')
                         get_charges_by_date = requests.get(
                             "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number})
-                            + "?date_from=" + str(date_from) + "&date_to=" + str(date_to),
+                            + "?date_from=" + date_from + "&date_to=" + date_to,
                             headers=headers
                         )
                         raw_stats = get_charges_by_date.json()
@@ -498,7 +499,6 @@ class PublicProfileView(TemplateView):
 
 
 class ReportView(View):
-
     @staticmethod
     def get(request, number=None):
         headers = {'Authorization': 'JWT ' + request.session["token"]}
@@ -509,9 +509,32 @@ class ReportView(View):
         if get_account.status_code == 200:
             account = get_account.json()
             if account.get('user') == request.user.id:
-                get_statistic = requests.get(
-                    "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
-                    headers=headers
-                )
-                raw_stats = get_statistic.json()
-                return excel.make_response_from_array(raw_stats, file_type='xlsx', file_name="custom")
+                date_from = request.GET.get('date_from', None)
+                date_to = request.GET.get('date_to', None)
+                if (date_from and date_to) is not None:
+                    get_stats_by_date = requests.get(
+                        "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number})
+                        + "?date_from=" + date_from + "&date_to=" + date_to,
+                        headers=headers
+                    )
+                    stats = get_stats_by_date.json()
+                    stats.insert(0, ['Year', 'Month', 'Total'])
+                    sheet = Sheet(stats)
+                    return excel.make_response(
+                        sheet,
+                        file_type='xlsx',
+                        file_name="account_" + str(number) + "_report_from_" + date_from + "_to_" + date_to
+                    )
+                else:
+                    get_statistic = requests.get(
+                        "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
+                        headers=headers
+                    )
+                    stats = get_statistic.json()
+                    stats.insert(0, ['Year', 'Month', 'Total'])
+                    sheet = Sheet(stats)
+                    return excel.make_response(
+                        sheet,
+                        file_type='xlsx',
+                        file_name="account_" + str(number) + "_report"
+                    )
