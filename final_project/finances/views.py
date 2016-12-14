@@ -395,18 +395,54 @@ class AccountStatisticsView(generic.FormView):
             if get_account.status_code == 200:
                 account = get_account.json()
                 if account.get('user') == request.user.id:
-                    get_statistic = requests.get(
-                        "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
-                        headers=headers
-                    )
-                    raw_stats = get_statistic.json()
-                    stats = self.transform_data(list(raw_stats))
-                    return render(request, self.template_name, {
-                        "title": "Account Statistics",
-                        "data": stats,
-                        "form": self.form_class,
-                        "account_number": number
-                    })
+                    date_from = request.GET.get('date_from', None)
+                    date_to = request.GET.get('date_to', None)
+                    if (date_from and date_to) is not None:
+                        try:
+                            date_from_arr = date_from.split("-")
+                            date_to_arr = date_to.split("-")
+                            if len(date_from_arr) != 3 or len(date_to_arr) != 3:
+                                raise ValueError
+                            else:
+                                datetime(
+                                    year=int(date_from_arr[0]),
+                                    month=int(date_from_arr[1]),
+                                    day=int(date_from_arr[2])
+                                )
+                                datetime(
+                                    year=int(date_to_arr[0]),
+                                    month=int(date_to_arr[1]),
+                                    day=int(date_to_arr[2])
+                                )
+                        except ValueError:
+                            return render(request, '404.html')
+                        get_charges_by_date = requests.get(
+                            "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number})
+                            + "?date_from=" + str(date_from) + "&date_to=" + str(date_to),
+                            headers=headers
+                        )
+                        stats = self.transform_data(get_charges_by_date.json())
+                        return render(request, self.template_name, {
+                            "title": "Account Statistics",
+                            "data": stats,
+                            "date_from": date_from,
+                            "date_to": date_to,
+                            "form": self.form_class,
+                            "account_number": number
+                        })
+                    else:
+                        get_statistic = requests.get(
+                            "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number}),
+                            headers=headers
+                        )
+                        raw_stats = get_statistic.json()
+                        stats = self.transform_data(list(raw_stats))
+                        return render(request, self.template_name, {
+                            "title": "Account Statistics",
+                            "data": stats,
+                            "form": self.form_class,
+                            "account_number": number
+                        })
                 else:
                     raise PermissionDenied
             else:
@@ -427,20 +463,8 @@ class AccountStatisticsView(generic.FormView):
                     date_range = request.POST.get('date_range')
                     date_from = date_range[:10]
                     date_to = date_range[-10:]
-                    get_charges_by_date = requests.get(
-                        "http://localhost:8000" + reverse("api:statistics", kwargs={'number': number})
-                        + "?date_from=" + str(date_from) + "&date_to=" + str(date_to),
-                        headers=headers
-                    )
-                    stats = self.transform_data(get_charges_by_date.json())
-                    return render(request, self.template_name, {
-                        "title": "Account Statistics",
-                        "data": stats,
-                        "date_from": date_from,
-                        "date_to": date_to,
-                        "form": self.form_class,
-                        "account_number": number
-                    })
+                    return redirect(reverse("finances:statistics", kwargs={'number': number})
+                                    + "?date_from=" + str(date_from) + "&date_to=" + str(date_to))
                 else:
                     raise PermissionDenied
             else:

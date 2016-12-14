@@ -5,9 +5,16 @@
         <h1>{{ title }}</h1>
         <a href="{% url 'finances:account' number=account_number %}">
             <button class="btn btn-primary">
-                <i class="fa fa-arrow-left" aria-hidden="true"></i> Return to the account page
+                <i class="fa fa-angle-double-left" aria-hidden="true"></i> Return to the account page
             </button>
         </a>
+        {% if date_to is not None and date_from is not None %}
+            <a href="{% url 'finances:statistics' number=account_number %}">
+                <button class="btn btn-primary">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i> Return to the all days statistics page
+                </button>
+            </a>
+        {% endif %}
     </div>
     <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
         <form action='{% url "finances:statistics" number=account_number %}' method="post"
