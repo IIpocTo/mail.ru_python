@@ -21,7 +21,9 @@ def show_accounts(request):
         if len(account_charges) == 0:
             elem["total"] = None
         else:
-            elem["total"] = reduce(lambda x,y: Decimal(x) + Decimal(y),
-                                   map(lambda x: x["value"], account_charges),
-                                   0.00)
+            elem["total"] = reduce(
+                lambda x, y: Decimal(x) + Decimal(y),
+                map(lambda x: x["value"], account_charges),
+                0.00
+            )
     return {'accounts': accounts}

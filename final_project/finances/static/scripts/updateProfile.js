@@ -11,64 +11,58 @@ $(document).ready(function () {
     $('.alert').fadeOut(4000);
 
     $(document).on("click", '.delete', {}, function() {
-        var rawId = $(this).attr('id');
-        var _ = rawId.indexOf('_');
-        var id = rawId.substring(6,_);
-        var number = rawId.substring(_ + 1);
+        const rawId = $(this).attr('id');
+        const underscoreIndex = rawId.indexOf('_');
+        const id = rawId.substring(6, underscoreIndex);
+        const number = rawId.substring(underscoreIndex + 1);
         deleteAccount(id, number);
     });
 
     $(document).on("click", '.edit', {}, function() {
-        var rawId = $(this).attr('id');
-        var _ = rawId.indexOf('_');
-        var id = rawId.substring(4,_);
-        var number = rawId.substring(_ + 1);
+        const rawId = $(this).attr('id');
+        const underscoreIndex = rawId.indexOf('_');
+        const id = rawId.substring(4, underscoreIndex);
+        const number = rawId.substring(underscoreIndex + 1);
         editAccount(id, number);
     });
 
     $(document).on("click", '.delete-charge', {}, function() {
-        var id = $(this).attr('id');
+        const id = $(this).attr('id');
         deleteCharge(id);
     });
 
     $(document).on("click", "#sendDelete", function () {
-        try {
-            $("#deleteForm").submit();
-        } catch (e) {
-            console.log(e);
-        }
+        $("#deleteForm").submit();
     });
 
     $(document).on("click", "#sendEdit", function () {
-        try {
-            $("#editForm").submit();
-        } catch (e) {
-            console.log(e);
-        }
+        $("#editForm").submit();
     });
 
     $(document).on("click", "#sendDeleteCharge", function () {
-        try {
-            $("#deleteChargeForm").submit();
-        } catch (e) {
-            console.log(e);
-        }
+        $("#deleteChargeForm").submit();
     });
 
 });
 
 function deleteCharge(id) {
-    document.getElementById('deleteChargeForm').getElementsByTagName('input').item(0).attributes.getNamedItem('value').nodeValue = id;
+    document.getElementById('deleteChargeForm')
+        .getElementsByTagName('input')
+        .item(0).attributes
+        .getNamedItem('value').nodeValue = id;
     $("#deleteCharge").modal('show');
 }
 
 function deleteAccount(id, number) {
-    document.getElementById('deleteForm').getElementsByTagName('input').item(0).attributes.getNamedItem('value').nodeValue = number;
+    document.getElementById('deleteForm')
+        .getElementsByTagName('input')
+        .item(0).attributes
+        .getNamedItem('value').nodeValue = number;
     $("#deleteAccount").modal('show');
 }
 
 function editAccount(id, number) {
-    var inputs = document.getElementById('editForm').getElementsByTagName('input');
+    const inputs = document.getElementById('editForm').getElementsByTagName('input');
     inputs.item(0).attributes.getNamedItem('value').nodeValue = document.location.href;
     inputs.item(1).attributes.getNamedItem('value').nodeValue = number;
     inputs.item(2).attributes.getNamedItem('value').nodeValue = number;
@@ -76,12 +70,12 @@ function editAccount(id, number) {
 }
 
 function showForm() {
-    var address = $('#ar').html();
-    var lastName = $('#ln').html();
-    var firstName = $('#fn').html();
-    var username = $('#username').html();
-    var email = $('#email').html();
-    var phone = $('#phone').html();
+    const address = $('#ar').html();
+    const lastName = $('#ln').html();
+    const firstName = $('#fn').html();
+    const username = $('#username').html();
+    const email = $('#email').html();
+    const phone = $('#phone').html();
     document.cookie = "address=" + address;
     document.cookie = "firstName=" + firstName;
     document.cookie = "lastName=" + lastName;
@@ -132,11 +126,11 @@ function cancelForm() {
 
 
 function getCookie(name) {
-    var cookieValue = null;
+    let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = jQuery.trim(cookies[i]);
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
