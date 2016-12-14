@@ -257,6 +257,7 @@ class AccountView(generic.FormView):
                         headers=headers
                     )
                     all_account_charges = get_charges.json()
+                    print(all_account_charges)
                     deposit, withdraw = self.fill_tables(all_account_charges)
                     return render(request, self.template_name, {
                         "title": "Account page",
@@ -305,10 +306,18 @@ class AddChargeView(generic.FormView):
 
             if form.is_valid():
                 headers = {'Authorization': 'JWT ' + request.session["token"]}
+                account_id = None
+                get_account = requests.get(
+                    "http://localhost:8000" + reverse("api:account_detail", kwargs={'number': number}),
+                    headers=headers
+                )
+                if get_account.status_code == 200:
+                    account = get_account.json()
+                    account_id = account.get("id")
                 data = {
                     'value': form.cleaned_data['value'],
                     'transactedAt': form.cleaned_data['transactedAt'],
-                    'account': number
+                    'account': account_id
                 }
                 post = requests.post("http://localhost:8000" + reverse("api:charge_list"), headers=headers, data=data)
 
