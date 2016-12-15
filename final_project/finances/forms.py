@@ -38,6 +38,10 @@ class RegisterForm(Form):
         cleaned_data = super().clean()
         password = self.cleaned_data.get('password')
         confirm_password = self.cleaned_data.get('confirm_password')
+        phone = self.cleaned_data.get('phone')
+        user = UserProfile.objects.filter(phone=phone)
+        if len(user) != 0:
+            self.add_error("phone", "This phone is already busy")
         if password is None or confirm_password is None:
             return cleaned_data
         if password != confirm_password:

@@ -31,18 +31,23 @@ class AdminUserListView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
             user_list = UserProfile.objects.filter(is_staff=False)
-            paginator = Paginator(user_list, 10)
-            page_next = None
-            page_previous = None
+            paginator = Paginator(user_list, 5)
             page = request.GET.get('page')
             try:
                 users = paginator.page(page)
-                page_next = page - 1
-                page_previous = page + 1
+                if int(page) == paginator.num_pages:
+                    page_previous = paginator.num_pages - 1
+                    page_next = None
+                elif int(page) == 1:
+                    page_previous = None
+                    page_next = 2
+                else:
+                    page_previous = int(page) - 1
+                    page_next = int(page) + 1
             except PageNotAnInteger:
                 users = paginator.page(1)
                 page_next = 2
-                page_next = None
+                page_previous = None
             except EmptyPage:
                 users = paginator.page(paginator.num_pages)
                 page_previous = paginator.num_pages - 1

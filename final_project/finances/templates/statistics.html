@@ -86,7 +86,7 @@
             var options = {
               title: 'Amount of charges within months',
               legend: { position: 'none' },
-                width: 1300,
+                width: 1250,
                 height: 500
             };
 
@@ -118,7 +118,7 @@
         <form action='{% url "finances:statistics" number=account_number %}' method="post"
               class="form-horizontal" role="form">
             <div class="form-group">
-                <legend>Display statistic of charges completed only in this of days</legend>
+                <legend>Display charges statistics by dates</legend>
             </div>
             <div class="form-group">
                 <label for="date_range_picker" class="col-sm-4 control-label">Choose dates:</label>
@@ -135,7 +135,7 @@
         <div class="row">
             <a id="graphShow">
                 <button class="btn btn-info">
-                    <i class="fa fa-line-chart" aria-hidden="true"></i> Look at the visualisation
+                    <i class="fa fa-line-chart" aria-hidden="true"></i> Look at the total balance
                 </button>
             </a>
             <a id="histogramShow">
@@ -143,6 +143,8 @@
                     <i class="fa fa-line-chart" aria-hidden="true"></i> Look at the histogram
                 </button>
             </a>
+        </div>
+        <div class="row" style="margin-top: 10px">
             {% if date_to is not None and date_from is not None %}
                 <a href="{% url 'finances:report' number=account_number %}?date_from={{ date_from }}&date_to={{ date_to }}">
                     <button class="btn btn-info">
@@ -210,7 +212,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h4 class="modal-title">Statistics</h4>
                 </div>
-                <div class="modal-body" id="graphHistogram" style="width: 1300px; height: 500px;">
+                <div class="modal-body" id="graphHistogram" style="width: 1255px; height: 500px;">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
