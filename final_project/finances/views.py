@@ -224,6 +224,9 @@ class AccountEditView(View):
                 else:
                     error_message = "Something went wrong with the update"
                     messages.error(request, error_message)
+                strings = path.split("/")
+                if len(strings) > 5:
+                    path = strings[0] + "//" + strings[2] + "/" + strings[3] + "/" + data["number"] + "/"
                 return redirect(path)
             else:
                 error_message = form.errors
