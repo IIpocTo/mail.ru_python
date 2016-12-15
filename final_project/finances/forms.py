@@ -99,16 +99,15 @@ class ChargeForm(ModelForm):
 
 
 class ChargeDeleteForm(Form):
-        charge=CharField(widget=HiddenInput())
+    charge = CharField(widget=HiddenInput)
 
-        def clean(self):
-            charge_id = self.cleaned_data['charge']
-            chargel = Charge.objects.filter(id=charge_id)
-            if len(chargel) == 1:
-                charge = chargel.get()
-                return self.cleaned_data
-            else:
-                self.add_error("charge", "This charge does not exist")
+    def clean(self):
+        charge_id = self.cleaned_data['charge']
+        charge = Charge.objects.filter(id=charge_id)
+        if len(charge) == 1:
+            return self.cleaned_data
+        else:
+            self.add_error("charge", "This charge does not exist")
 
 
 class AccountDeleteForm(ModelForm):
@@ -136,8 +135,8 @@ class AccountEditForm(Form):
             message="Account number must have precisely 12 digits and can not start with 0"
         )
     ])
-    number = CharField(widget=HiddenInput())
-    path = CharField(widget=HiddenInput())
+    number = CharField(widget=HiddenInput)
+    path = CharField(widget=HiddenInput)
 
     def clean(self):
         number = self.cleaned_data.get("number")

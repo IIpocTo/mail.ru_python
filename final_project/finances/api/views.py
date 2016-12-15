@@ -13,8 +13,7 @@ from rest_framework.views import APIView
 from .permissions import IsAccountOwnerOrReadOnly, IsChargeOwner, IsHimself
 from .serializers import (
     AccountDetailSerializer, AccountListSerializer, ChargeListSerializer, ChargeDetailSerializer,
-    UserListSerializer, UserDetailSerializer,
-    StatisticSerializer, FullUserDetailSerializer
+    UserListSerializer, UserDetailSerializer, StatisticSerializer, FullUserDetailSerializer
 )
 from ..models import Account, Charge, UserProfile
 

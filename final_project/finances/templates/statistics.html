@@ -6,9 +6,9 @@
         google.charts.setOnLoadCallback(drawChart);
 
         function drawChart() {
-            var header = ['Date', 'Total'];
+            const header = ['Date', 'Total'];
+            const array = [];
             var array_all = [];
-            var array = [];
             {% for k,v in data.items %}
                 {% ifequal data.keys|length 1 %}
                     {% for key, value in v.items %}
@@ -30,8 +30,8 @@
                 console.log(array);
                 array_all.push(header);
                 array_all = array_all.concat(array);
-                var data = google.visualization.arrayToDataTable(array_all);
-                var options = {
+                const data = google.visualization.arrayToDataTable(array_all);
+                const options = {
                     'title': 'Your statistic visualization',
                     'legend': {position: 'top', maxLines: 2},
                     'width': 1000,
@@ -39,7 +39,7 @@
                     'curveType': 'function',
                     'colors': ['green']
                 };
-                var chart = new google.visualization.LineChart(document.getElementById('graphChart'));
+                const chart = new google.visualization.LineChart(document.getElementById('graphChart'));
                 chart.draw(data, options);
             } else {
                 $("#graphChart").append("<h2>There is no data yet to display!</h2>");
@@ -47,34 +47,22 @@
         }
     </script>
     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-        <h1>{{ title }}</h1>
-        <a href="{% url 'finances:account' number=account_number %}">
-            <button class="btn btn-primary">
-                <i class="fa fa-angle-double-left" aria-hidden="true"></i> Return to the account page
-            </button>
-        </a>
-        <a id="graphShow">
-            <button class="btn btn-primary">
-                Look at the visualisation
-            </button>
-        </a>
-        {% if date_to is not None and date_from is not None %}
-            <a href="{% url 'finances:statistics' number=account_number %}">
+        <div class="row">
+            <h1>{{ title }}</h1>
+            <a href="{% url 'finances:account' number=account_number %}">
                 <button class="btn btn-primary">
-                    <i class="fa fa-angle-left" aria-hidden="true"></i> Return to the total statistics page
+                    <i class="fa fa-angle-double-left" aria-hidden="true"></i> Return to the account page
                 </button>
             </a>
-            <a href="{% url 'finances:report' number=account_number %}?date_from={{ date_from }}&date_to={{ date_to }}">
-                <button class="btn btn-info">
-                    <i class="fa fa-download" aria-hidden="true"></i> Download report
-                </button>
-            </a>
-        {% else %}
-            <a href="{% url 'finances:report' number=account_number %}">
-                <button class="btn btn-info">
-                    <i class="fa fa-download" aria-hidden="true"></i> Download report
-                </button>
-            </a>
+        </div>
+        {% if date_to is not None and date_from is not None %}
+            <div class="row" style="padding-top: 10px">
+                <a href="{% url 'finances:statistics' number=account_number %}">
+                    <button class="btn btn-primary">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i> Return to the total statistics page
+                    </button>
+                </a>
+            </div>
         {% endif %}
     </div>
     <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
@@ -91,10 +79,30 @@
                     </div>
                 {% endfor %}
                 <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-                    <button type="submit" class="btn btn-primary">Update statistics</button>
+                    <button type="submit" class="btn btn-success">Update statistic</button>
                 </div>
             </div>
         </form>
+        <div class="row">
+            <a id="graphShow">
+                <button class="btn btn-info">
+                    <i class="fa fa-line-chart" aria-hidden="true"></i> Look at the visualisation
+                </button>
+            </a>
+            {% if date_to is not None and date_from is not None %}
+                <a href="{% url 'finances:report' number=account_number %}?date_from={{ date_from }}&date_to={{ date_to }}">
+                    <button class="btn btn-info">
+                        <i class="fa fa-download" aria-hidden="true"></i> Download report
+                    </button>
+                </a>
+            {% else %}
+                <a href="{% url 'finances:report' number=account_number %}">
+                    <button class="btn btn-info">
+                        <i class="fa fa-download" aria-hidden="true"></i> Download report
+                    </button>
+                </a>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
 {% block content %}
@@ -136,7 +144,7 @@
             <div class="modal-body" id="graphChart" style="width: 900px; height: 500px;">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
