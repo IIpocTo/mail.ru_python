@@ -467,16 +467,22 @@ class AccountStatisticsView(FormView):
 class UserSearchView(TemplateView):
     @staticmethod
     def get(request, *args, **kwargs):
-        headers = {'Authorization': 'JWT ' + request.session["token"]}
-        get_user = requests.get(
-            "http://localhost:8000" + reverse("api:user_list") + "?search=" + request.GET.get('username'),
-            headers=headers
-        )
-        user = get_user.json()
-        if len(user) == 1:
-            return redirect("finances:public_profile", username=user[0].get('username'))
+        if request.user.is_authenticated:
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            get_user = requests.get(
+                "http://localhost:8000" + reverse("api:user_list") + "?search=" + request.GET.get('username'),
+                headers=headers
+            )
+            if get_user.status_code == 200:
+                user = get_user.json()
+                if len(user) == 1:
+                    return redirect("finances:public_profile", username=user[0].get('username'))
+                else:
+                    return render(request, '404.html')
+            else:
+                return render(request, '404.html')
         else:
-            return render(request, '404.html')
+            raise PermissionDenied
 
 
 class PublicProfileView(TemplateView):

@@ -129,26 +129,33 @@ class AdminSearchUserView(generic.TemplateView):
             "http://localhost:8000" + reverse("api:user_list") + "?search=" + username,
             headers=headers
         )
-        user = get_user.json()[0]
-        headers = {'Authorization': 'JWT ' + request.session["token"]}
-        response = requests.get("http://localhost:8000" + reverse("api:account_list") + "?search=" + username, headers=headers)
-        accounts = json.loads(response.content.decode())
-        for elem in accounts:
-            get_charges = requests.get(
-                "http://localhost:8000" + reverse("api:charge_list") + "?search=" + elem["number"],
-                headers=headers
-            )
-            account_charges = get_charges.json()
-            if len(account_charges) == 0:
-                elem["total"] = None
+        if get_user.status_code != 200:
+            return render(request, '404.html')
+        else:
+            users = get_user.json()
+            if len(users) != 1:
+                return render(request, '404.html')
             else:
-                elem["total"] = reduce(lambda x,y: Decimal(x) + Decimal(y),
-                                       map(lambda x: x["value"], account_charges),
-                                       0.00)
-        return render(request, self.template_name, {
-            "title": "User detail view",
-            "user": user,
-            "accounts": accounts
-        })
+                user = users[0]
+            headers = {'Authorization': 'JWT ' + request.session["token"]}
+            response = requests.get("http://localhost:8000" + reverse("api:account_list") + "?search=" + username, headers=headers)
+            accounts = json.loads(response.content.decode())
+            for elem in accounts:
+                get_charges = requests.get(
+                    "http://localhost:8000" + reverse("api:charge_list") + "?search=" + elem["number"],
+                    headers=headers
+                )
+                account_charges = get_charges.json()
+                if len(account_charges) == 0:
+                    elem["total"] = None
+                else:
+                    elem["total"] = reduce(lambda x,y: Decimal(x) + Decimal(y),
+                                           map(lambda x: x["value"], account_charges),
+                                           0.00)
+            return render(request, self.template_name, {
+                "title": "User detail view",
+                "user": user,
+                "accounts": accounts
+            })
 
 
