@@ -83,6 +83,7 @@ class StatisticSerializer(Serializer):
     year = IntegerField()
     month = IntegerField()
     total = DecimalField(max_digits=10, decimal_places=2)
+    count = IntegerField()
 
     def create(self, validated_data):
         super().create(self)

@@ -15,7 +15,7 @@ from .forms import (
     AccountDeleteForm, AccountEditForm, SelectDateRangeForm, ChargeDeleteForm
 )
 from .models import UserProfile
-from .utils import transform_data
+from .utils import transform_data, transform_data_to_hist
 
 
 class MainPageView(TemplateView):
@@ -412,9 +412,11 @@ class AccountStatisticsView(FormView):
                         )
                         raw_stats = get_charges_by_date.json()
                         stats = transform_data(list(raw_stats))
+                        hist = transform_data_to_hist(list(raw_stats))
                         return render(request, self.template_name, {
                             "title": "Account Statistics",
                             "data": stats,
+                            "hist": hist,
                             "date_from": date_from,
                             "date_to": date_to,
                             "form": self.form_class,
@@ -427,9 +429,11 @@ class AccountStatisticsView(FormView):
                         )
                         raw_stats = get_statistic.json()
                         stats = transform_data(list(raw_stats))
+                        hist = transform_data_to_hist(list(raw_stats))
                         return render(request, self.template_name, {
                             "title": "Account Statistics",
                             "data": stats,
+                            "hist": hist,
                             "form": self.form_class,
                             "account_number": number
                         })

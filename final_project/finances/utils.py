@@ -47,7 +47,7 @@ def transform_data(variables, acc=None):
     if len(variables) == 0:
         return acc
     else:
-        year, month, total = variables.pop(-1)
+        year, month, total, count = variables.pop(-1)
         if acc is None:
             acc = [[year, [[get_month_name(month), total]]]]
         else:
@@ -58,3 +58,21 @@ def transform_data(variables, acc=None):
             else:
                 acc.append([year, [[get_month_name(month), total]]])
         return transform_data(variables, acc)
+
+
+def transform_data_to_hist(variables, acc=None):
+    if len(variables) == 0:
+        return acc
+    else:
+        year, month, total, count = variables.pop(-1)
+        if acc is None:
+            acc = [[year, [[get_month_name(month), count]]]]
+        else:
+            if get_elem(acc, year):
+                months = get_annual(acc, year)
+                if not get_elem(months, get_month_name(month)):
+                    acc[get_index(acc, year)][1].append([get_month_name(month), count])
+            else:
+                acc.append([year, [[get_month_name(month), count]]])
+        return transform_data_to_hist(variables, acc)
+

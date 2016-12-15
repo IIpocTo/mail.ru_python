@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.db.models.functions import Extract
 from pytz import UTC
 from rest_framework.filters import SearchFilter
@@ -82,10 +82,11 @@ class StatisticsList(APIView):
                        .filter(account__number=number)
                        .annotate(month=Extract('transactedAt', 'month'))
                        .values('month').annotate(total=Sum('value'))
+                       .annotate(count=Count('value'))
                        .annotate(year=Extract('transactedAt', 'year'))
-                       .values('year', 'month', 'total')
+                       .values('year', 'month', 'total', 'count')
                        .order_by('year', 'month')
-                       .values_list('year', 'month', 'total'))
+                       .values_list('year', 'month', 'total','count'))
 
         elif (request.query_params.get('date_from', None) and request.query_params.get('date_to', None)) is not None:
 
@@ -98,6 +99,7 @@ class StatisticsList(APIView):
                        .filter(account__number=number, transactedAt__range=[date_from, date_to])
                        .annotate(month=Extract('transactedAt', 'month'))
                        .values('month').annotate(total=Sum('value'))
+                       .values('month').annotate(count=Count('value'))
                        .annotate(year=Extract('transactedAt', 'year'))
                        .values('year', 'month', 'total')
                        .order_by('year', 'month')
