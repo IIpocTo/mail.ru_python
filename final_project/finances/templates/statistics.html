@@ -49,7 +49,7 @@
 
         function drawHistogram() {
             const header = ['Month', 'Count'];
-            const array = [];
+            var array = [];
             var array_all = [];
             var months = ["January",
             "February",
@@ -66,6 +66,9 @@
             for (var i= 0; i < months.length; i++) {
                 array.push([months[i], 0]);
             }
+            {% ifequal hist|length 0  %}
+                array = [];
+            {% else %}
             {% for k,v in hist %}
                 {% for key, value in v %}
                 console.log(get_index(array, "{{ key}}"));
@@ -73,8 +76,10 @@
                     console.log(variable);
                     array[get_index(array, "{{ key }}")][1] = variable + {{ value }};
                         // array.push(["{{ key }}",{{ value }}]);
+
                 {% endfor %}
             {% endfor %}
+            {% endifequal %}
             if (array.length != 0) {
                 array.reverse();
                 console.log(array);
@@ -92,7 +97,9 @@
 
             var chart = new google.visualization.ColumnChart(document.getElementById('graphHistogram'));
             chart.draw(view, options);
-        }
+        } else {
+                $("#graphHistogram").append("<h2>There is no data yet to display!</h2>");
+            }
     }
     </script>
     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">

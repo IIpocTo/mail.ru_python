@@ -229,9 +229,10 @@ class AccountEditView(View):
                     path = strings[0] + "//" + strings[2] + "/" + strings[3] + "/" + data["number"] + "/"
                 return redirect(path)
             else:
+                path = form.data.get("path")
                 error_message = form.errors
                 messages.error(request, error_message)
-                return redirect(reverse("finances:profile"))
+                return redirect(path)
         else:
             raise PermissionDenied
 
@@ -531,7 +532,7 @@ class ReportView(View):
                         headers=headers
                     )
                     stats = get_stats_by_date.json()
-                    stats.insert(0, ['Year', 'Month', 'Total'])
+                    stats.insert(0, ['Year', 'Month', 'Total', 'Count'])
                     sheet = Sheet(stats)
                     return excel.make_response(
                         sheet,
@@ -544,7 +545,7 @@ class ReportView(View):
                         headers=headers
                     )
                     stats = get_statistic.json()
-                    stats.insert(0, ['Year', 'Month', 'Total'])
+                    stats.insert(0, ['Year', 'Month', 'Total', 'Count'])
                     sheet = Sheet(stats)
                     return excel.make_response(
                         sheet,

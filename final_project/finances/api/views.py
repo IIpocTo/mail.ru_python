@@ -81,7 +81,8 @@ class StatisticsList(APIView):
             content = (Charge.objects
                        .filter(account__number=number)
                        .annotate(month=Extract('transactedAt', 'month'))
-                       .values('month').annotate(total=Sum('value'))
+                       .values('month')
+                       .annotate(total=Sum('value'))
                        .annotate(count=Count('value'))
                        .annotate(year=Extract('transactedAt', 'year'))
                        .values('year', 'month', 'total', 'count')
@@ -98,12 +99,13 @@ class StatisticsList(APIView):
             content = (Charge.objects
                        .filter(account__number=number, transactedAt__range=[date_from, date_to])
                        .annotate(month=Extract('transactedAt', 'month'))
-                       .values('month').annotate(total=Sum('value'))
-                       .values('month').annotate(count=Count('value'))
+                       .values('month')
+                       .annotate(total=Sum('value'))
+                       .annotate(count=Count('value'))
                        .annotate(year=Extract('transactedAt', 'year'))
-                       .values('year', 'month', 'total')
+                       .values('year', 'month', 'total', 'count')
                        .order_by('year', 'month')
-                       .values_list('year', 'month', 'total'))
+                       .values_list('year', 'month', 'total', 'count'))
 
         return Response(content, status=200)
 
