@@ -1,4 +1,4 @@
-months = {
+months_array = {
     1: 'January',
     2: 'February',
     3: 'March',
@@ -15,7 +15,7 @@ months = {
 
 
 def get_month_name(month):
-    return months[month]
+    return months_array[month]
 
 
 def get_elem(arr, el):
@@ -27,13 +27,14 @@ def get_elem(arr, el):
 
 
 def get_index(arr, el):
-    i = 0
+    index = 0
     for elem in arr:
         fst, snd = elem
         if fst == el:
-            return i
-        i = i + 1
+            return index
+        index += 1
     return None
+
 
 def get_annual(arr, el):
     res = []
@@ -42,6 +43,7 @@ def get_annual(arr, el):
         if year == el:
             res = months
     return res
+
 
 def transform_data(variables, acc=None):
     if len(variables) == 0:
