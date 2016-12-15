@@ -3,7 +3,10 @@ from decimal import Decimal
 
 from datetimewidget.widgets import DateTimeWidget
 from django.core.validators import RegexValidator
-from django.forms import Form, ModelForm, CharField, EmailField, HiddenInput, TextInput
+from django.forms import (
+    Form, ModelForm, CharField, EmailField, HiddenInput, 
+    PasswordInput, TextInput
+)
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
 from pytz import UTC
@@ -48,11 +51,15 @@ class ProfileUpdateForm(ModelForm):
         fields = ["last_name", "first_name", "address"]
 
 
-class LoginForm(ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ["username", "password"]
-
+class LoginForm(Form):
+    username = CharField(max_length=150, min_length=4, validators=[
+        RegexValidator(
+            r'^[\w]+$',
+            message="Username can contain only letters and digits"
+        )
+    ])
+    password = CharField(max_length=128, min_length=4,widget=PasswordInput)
+    
     def clean(self):
         username = self.cleaned_data.get('username')
         password = self.cleaned_data.get('password')
