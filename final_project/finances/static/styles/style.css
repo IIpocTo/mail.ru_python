@@ -44,3 +44,10 @@ td:hover {
 ul.dropdown-menu {
     min-width: 315px;
 }
+
+.wrapper {
+    min-height: 100%;
+}
+.push {
+    height: 10px;
+}

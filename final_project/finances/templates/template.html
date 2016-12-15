@@ -58,16 +58,27 @@
             </ul>
         </div>
     </nav>
-    <div class="container-fluid">
+    <div class="wrapper">
         <div class="container-fluid">
-            {% block header %}
-            {% endblock %}
-        </div>
-        <div class="container-fluid">
-            {% block content %}
-            {% endblock %}
+            <div class="container-fluid">
+                {% block header %}
+                {% endblock %}
+            </div>
+            <div class="container-fluid">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <div class="push"></div>
         </div>
     </div>
+    <footer class="footer">
+        <div class="navbar-inner">
+            <div class="container">
+                <p class="pull-right"><a href="#">Back to top</a></p>
+                <p>© 2016 Finance System, Inc. ·</p>
+            </div>
+        </div>
+    </footer>
     <div id="deleteAccount" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -114,14 +125,5 @@
             </div>
         </div>
     </div>
-    <div class="navbar-fixed-bottom row-fluid">
-        <div class="navbar-inner">
-            <div class="container">
-                <p class="pull-right"><a href="#">Back to top</a></p>
-                <p>© 2016 Finance System, Inc. ·</p>
-            </div>
-        </div>
-    </div>
-
 </body>
 </html>
