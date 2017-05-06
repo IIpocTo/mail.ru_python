@@ -10,9 +10,9 @@
      - полученные части рекурсивно сортируются;
      - из полученнных частей формируется результат.
      
-   Необходимо реализовать его на Python.
+      Необходимо реализовать его на Python.
         
-   <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/additional_tasks/task_1">Решение</a>
+      <a href="https://github.com/IIpocTo/mail.ru_python/tree/master/additional_tasks/task_1">Решение</a>
         
   2. Разделяется на две подзадачи:
      
